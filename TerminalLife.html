@@ -1,0 +1,1016 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Terminal Life</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            background-color: #0d0d0d;
+            color: #C8C8C8;
+            font-family: 'Courier New', monospace;
+            margin: 0;
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 600px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .screen {
+            background-color: #000;
+            border: 2px solid #333333;
+            padding: 1rem;
+            width: 100%;
+            height: 380px;
+            overflow-y: auto;
+            font-size: 0.8rem;
+            margin-bottom: 1rem;
+            position: relative;
+            color: #0F0; /* Default text color, can be changed by JS */
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start; /* Align content to the top */
+            align-items: flex-start;
+            text-align: left;
+        }
+
+        .screen.glitch-effect {
+            filter: url(#glitch-filter-effect);
+            transition: filter 0.1s ease-out;
+        }
+
+        .screen-content {
+            width: 100%;
+            height: 100%;
+            overflow-y: auto;
+            position: absolute;
+            top: 0;
+            left: 0;
+            padding: 1rem;
+            background-color: #000;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: flex-start;
+            text-align: left;
+        }
+
+        .screen-content pre {
+            margin: 0;
+            padding: 0;
+            width: 100%; /* Ensure pre takes full width */
+        }
+
+        .screen-content pre code {
+            background-color: #000 !important;
+            color: #C8C8C8; /* Default code color */
+            display: block;
+            padding: 0;
+            margin: 0;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        .static-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNCIgaGVpZ2h0PSI0IiB2aWV3Qm94PSIwIDAgNCA0IiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxnIGZpbGw9IiM5YjliOWIiIGZpbGwtb3BhY2l0eT0iMC4xIiBmaWxsLXJ1bGU9ImV2ZW5vZCI+PHBhdGggZD0iTTAgMGg0VjRIMDBWMHoiLz48cGF0aCBkPSJNMCAwdjJoMlYwSDB6Ii8+PHBhdGggZD0iTTIgMmgyVjRIMnpNLTAuMi0wLjJoMS43VjEuNUgtMC4yWiIvPjwvZz48L3N2Zz4=');
+            animation: static-flicker 3s infinite steps(10);
+            pointer-events: none;
+            opacity: 0; /* Hidden by default */
+            mix-blend-mode: overlay;
+        }
+
+        @keyframes static-flicker {
+            0%, 50% { opacity: 0; }
+            10%, 30%, 70% { opacity: 0.04; }
+        }
+
+        .keyboard {
+            display: flex;
+            flex-direction: column;
+            gap: 0.3rem;
+            width: 100%;
+        }
+
+        .row {
+            display: flex;
+            justify-content: center;
+            gap: 0.3rem;
+        }
+
+        .key {
+            padding: 0.8rem 0.5rem;
+            background-color: #222;
+            border: 1px solid #555;
+            border-radius: 6px;
+            color: #ccc;
+            font-size: 0.8rem;
+            text-align: center;
+            width: 2.2rem;
+            user-select: none;
+            transition: 0.1s;
+            position: relative; /* For layered text */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 2.2rem; /* Ensure consistent height */
+            cursor: pointer; /* Indicate clickable */
+        }
+
+        .key.wide { width: 4.5rem; }
+        .key.space { flex-grow: 1; min-width: 10rem; } /* Use flex-grow for spacebar */
+        .key.ctrl-wide { width: 3.5rem; } /* Custom width for Ctrl/Fn/Alt */
+        .key.tab { width: 3.5rem; }
+        .key.backspace { width: 3.5rem; }
+
+        .key.active {
+            background-color: #8A8A8A;
+            color: #000;
+            transform: scale(0.95);
+        }
+
+        /* Styles for active Shift/Fn layer */
+        .key.shift-active, .key.fn-active {
+            background-color: #6a6a6a; /* A different highlight for modifier keys */
+            color: #fff;
+        }
+
+
+        .key .main-char {
+            font-size: 0.8rem;
+            line-height: 1; /* Adjust line height for better spacing */
+            text-transform: lowercase; /* Default to lowercase for keys */
+        }
+
+        .key .alt-char {
+            font-size: 0.6rem;
+            position: absolute;
+            bottom: 0.2rem;
+            right: 0.2rem;
+            color: #8A8A8A; /* Lighter color for alt chars */
+            line-height: 1;
+        }
+        .key .alt-char.top-left {
+            top: 0.2rem;
+            left: 0.2rem;
+            right: auto;
+            bottom: auto;
+        }
+
+
+        /* Error message style */
+        .error-message {
+            color: red;
+            font-size: 0.95rem;
+            padding-top: 1rem;
+            border-top: 1px solid #555;
+            margin-top: 1rem;
+            animation: breathe 2s ease-in-out infinite alternate; /* Breath effect */
+        }
+
+        @keyframes breathe {
+            0% { opacity: 0.8; }
+            100% { opacity: 1; }
+        }
+
+
+        .blinking {
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            50.1%, 100% { opacity: 0; }
+        }
+
+        .system-log {
+            background-color: #000;
+            border: 2px solid #333333;
+            padding: 0.8rem;
+            width: 100%;
+            height: 60px;
+            overflow-y: auto;
+            white-space: pre-line;
+            font-size: 0.7rem;
+            margin-bottom: 1rem;
+            color: #8A8A8A;
+        }
+
+        .loading-bar-container {
+            width: 80%;
+            background-color: #1a1a1a;
+            border: 1px solid #555;
+            height: 1.2rem;
+            display: none; /* Hidden by default */
+            position: absolute; /* Changed to absolute for centering */
+            top: 50%; /* Center vertically */
+            left: 50%; /* Center horizontally */
+            transform: translate(-50%, -50%); /* Adjust for perfect centering */
+            text-align: center;
+            color: #C8C8C8;
+            font-size: 0.8rem;
+            margin-top: 0; /* Remove previous margin-top */
+        }
+
+        .loading-bar {
+            height: 100%;
+            width: 0%; /* Controlled by JS */
+            background-color: #888; /* Monochrome color */
+            transition: width 0.1s linear;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 1;
+        }
+
+        .loading-text {
+            position: relative;
+            z-index: 2;
+            line-height: 1.2rem;
+            color: #ccc; /* Monochrome text color */
+        }
+
+        .boot-text, .terminal-intro-text {
+            color: #0F0;
+            font-size: 0.9em;
+            line-height: 1.4;
+            white-space: pre-wrap;
+            word-break: break-word;
+            margin-bottom: 0.5rem;
+        }
+
+        /* ASCII Logo Styling */
+        .ascii-logo-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            white-space: pre;
+            font-size: 0.8rem; /* Adjust as needed */
+            color: #0F0; /* Green terminal color */
+            text-shadow: 0 0 5px #0F0; /* Subtle glow */
+            opacity: 0; /* Hidden by default */
+            transition: opacity 1s ease-in-out;
+            animation: flicker-logo 0.1s infinite alternate; /* Subtle flicker */
+        }
+
+        .ascii-logo-container.show {
+            opacity: 1;
+        }
+
+        .ascii-logo-container.hide {
+            opacity: 0;
+        }
+
+        @keyframes flicker-logo {
+            0% { text-shadow: 0 0 4px #0F0; }
+            100% { text-shadow: 0 0 6px #0F0; }
+        }
+
+        @media (max-width: 480px) {
+            .key { padding: 0.6rem 0.4rem; width: 2rem; font-size: 0.7rem; height: 2rem; }
+            .key.space { min-width: 8rem; } /* Adjust for smaller screens */
+            .key.wide { width: 4rem; }
+            .key.ctrl-wide { width: 3rem; }
+            .key.tab { width: 3rem; }
+            .key.backspace { width: 3rem; }
+            .ascii-logo-container { font-size: 0.6rem; } /* Smaller font for logo on small screens */
+        }
+    </style>
+</head>
+<body>
+    <svg width="0" height="0" style="position:absolute;z-index:-1;">
+        <filter id="glitch-filter-effect">
+            <feColorMatrix type="matrix" values="
+                1 0 0 0 0
+                0 0 0 0 0
+                0 0 0 0 0
+                0 0 0 1 0 " result="redChannel" />
+            <feOffset in="redChannel" dx="0" dy="0" result="redOffset">
+                <animate attributeName="dx" values="0; 5; -5; 0" dur="0.1s" repeatCount="indefinite" />
+                <animate attributeName="dy" values="0; 5; -5; 0" dur="0.1s" repeatCount="indefinite" />
+            </feOffset>
+
+            <feColorMatrix type="matrix" values="
+                0 0 0 0 0
+                0 1 0 0 0
+                0 0 0 0 0
+                0 0 0 1 0 " result="greenChannel" />
+            <feOffset in="greenChannel" dx="0" dy="0" result="greenOffset">
+                <animate attributeName="dx" values="0; -5; 5; 0" dur="0.1s" repeatCount="indefinite" />
+                <animate attributeName="dy" values="0; -5; 5; 0" dur="0.1s" repeatCount="indefinite" />
+            </feOffset>
+
+            <feColorMatrix type="matrix" values="
+                0 0 0 0 0
+                0 0 0 0 0
+                0 0 1 0 0
+                0 0 0 1 0 " result="blueChannel" />
+            <feOffset in="blueChannel" dx="0" dy="0" result="blueOffset">
+                <animate attributeName="dx" values="0; 3; -3; 0" dur="0.1s" repeatCount="indefinite" />
+                <animate attributeName="dy" values="0; 3; -3; 0" dur="0.1s" repeatCount="indefinite" />
+            </feOffset>
+
+            <feBlend mode="screen" in="redOffset" in2="greenOffset" result="combinedChannels" />
+            <feBlend mode="screen" in="combinedChannels" in2="blueOffset" result="finalChannels" />
+
+            <feTurbulence type="fractalNoise" baseFrequency="0.05" numOctaves="1" result="noise" />
+            <feComposite operator="in" in="noise" in2="SourceGraphic" result="noiseOverlay"/>
+
+            <feBlend mode="multiply" in="finalChannels" in2="noiseOverlay" result="glitchOutput"/>
+
+            <feMerge>
+                <feMergeNode in="glitchOutput"/>
+                <feMergeNode in="SourceGraphic"/>
+            </feMerge>
+        </filter>
+    </svg>
+
+    <div class="container">
+        <div class="screen" id="screen">
+            <div class="static-overlay" id="staticOverlay"></div>
+            <div class="screen-content" id="screenContent">
+                <span class="blinking">|</span>
+            </div>
+            <div class="ascii-logo-container" id="asciiLogoContainer"></div>
+
+            <div class="loading-bar-container" id="loadingBarContainer">
+                <div class="loading-bar" id="loadingBar"></div>
+                <div class="loading-text" id="loadingText">INITIATING REBOOT...</div>
+            </div>
+        </div>
+        <div class="system-log" id="systemLog">
+            </div>
+        <div class="keyboard" id="keyboard">
+            </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script>
+        hljs.highlightAll = hljs.highlightAll || function() {
+            document.querySelectorAll('pre code').forEach((block) => {
+                hljs.highlightElement(block);
+            });
+        };
+
+        const keyboardLayout = [
+            [{main: 'tab', dataKey: 'Tab', class: 'tab'}, {main: 'q', alt: '1', dataKey: 'q'}, {main: 'w', alt: '2', dataKey: 'w'}, {main: 'e', alt: '3', dataKey: 'e'}, {main: 'r', alt: '4', dataKey: 'r'}, {main: 't', alt: '5', dataKey: 't'}, {main: 'y', alt: '6', dataKey: 'y'}, {main: 'u', alt: '7', dataKey: '7'}, {main: 'i', alt: '8', dataKey: 'i'}, {main: 'o', alt: '9', dataKey: 'o'}, {main: 'p', alt: '0', dataKey: 'p'}, {main: 'del', dataKey: 'Backspace', class: 'backspace'}],
+            [{main: 'a', alt: '!', dataKey: 'a'}, {main: 's', alt: '@', dataKey: 's'}, {main: 'd', alt: '#', dataKey: 'd'}, {main: 'f', alt: '$', dataKey: 'f'}, {main: 'g', alt: '%', dataKey: 'g'}, {main: 'h', alt: '^', dataKey: 'h'}, {main: 'j', alt: '&', dataKey: 'j'}, {main: 'k', alt: '*', dataKey: 'k'}, {main: 'l', alt: '(', dataKey: 'l'}, {main: ';', alt: ':', dataKey: ';'}, {main: '\'', alt: ')', dataKey: '\''}, {main: 'Enter', dataKey: 'Enter', class: 'wide'}],
+            [{main: 'Shift', dataKey: 'Shift', class: 'wide'}, {main: 'z', alt: '[', dataKey: 'z'}, {main: 'x', alt: ']', dataKey: 'x'}, {main: 'c', alt: '{', dataKey: 'c'}, {main: 'v', alt: '}', dataKey: 'v'}, {main: 'b', alt: '/', dataKey: 'b'}, {main: 'n', alt: '\\', dataKey: 'n'}, {main: 'm', alt: '|', dataKey: 'm'}, {main: ',', alt: '<', dataKey: ','}, {main: '.', alt: '>', dataKey: '.'}, {main: '?', alt: '~', dataKey: '?', class: 'question'}, {main: 'Shift', dataKey: 'Shift', class: 'wide'}],
+            [{main: 'Ctrl', dataKey: 'Control', class: 'ctrl-wide'}, {main: 'Fn', dataKey: 'Fn', class: 'ctrl-wide'}, {main: 'Alt', dataKey: 'Alt', class: 'ctrl-wide'}, {main: 'Space', dataKey: ' ', class: 'space'}, {main: 'Alt', dataKey: 'AltGraph', class: 'ctrl-wide'}, {main: 'Ctrl', dataKey: 'Control', class: 'ctrl-wide'}]
+        ];
+
+        const screen = document.getElementById('screen');
+        const screenContent = document.getElementById('screenContent');
+        const keyboard = document.getElementById('keyboard');
+        const systemLog = document.getElementById('systemLog');
+        const loadingBarContainer = document.getElementById('loadingBarContainer');
+        const loadingBar = document.getElementById('loadingBar');
+        const loadingText = document.getElementById('loadingText');
+        const staticOverlay = document.getElementById('staticOverlay');
+        const asciiLogoContainer = document.getElementById('asciiLogoContainer');
+        const keyMap = {};
+
+        let currentTypedCode = '';
+        let isShiftActive = false;
+        let isFnActive = false;
+
+        // --- Variabel dan Fungsi Baru untuk Simulasi Otomatis ---
+        let autoTypingInterval;
+        let autoTypingQueue = [];
+        let isAutoTyping = false;
+        let isAutoTypingPaused = false;
+        let autoResumeTimeout;
+        let userInputBuffer = [];
+        const typingSpeed = 60; // Milliseconds per character
+        const PAUSE_DURATION = 3000;
+        const BACKSPACE_SPEED = 50;
+        const INITIAL_DELAY = 2000; // 2 seconds delay before first typing
+        const RESTART_DELAY = 3000; // 3 seconds delay before re-looping simulation
+
+        // ASCII Logo Parabola
+        const asciiLogo = `
+  /\\
+ /  \\
+|====|
+| [] |
+ \\  /
+  \\/
+`; // A simple parabola-like logo
+
+        // Kode Simulasi otomatis yang baru
+        const codeLines = `try {
+  disconnect();
+  survive("bukan menikmati");
+  simplify("ya biasa aja");
+  buryEmotion("rutinitas");
+} catch (e) {
+  throw new EmosiNotHandledException();
+}`;
+
+        const fixingCodeLines = `
+// Attempting to fix EmosiNotHandledException...
+system.diagnose.emotionalState();
+  if (state.isCorrupted) {
+    system.repair.mindSchema();
+  } else {
+    system.log.error("Fix failed. Mind already too far gone.");
+  }`;
+
+        const rebootCommandLines = `command: reboot -f
+system shutdown initiated.
+Preparing for restart...`;
+
+        // Fungsi untuk memulai simulasi pengetikan otomatis
+        function startAutoTyping(textToType, callbackAfterFinish = null, disableUserInput = false) {
+            if (isAutoTyping) {
+                clearInterval(autoTypingInterval); // Hentikan yang sebelumnya jika masih berjalan
+            }
+            isAutoTyping = true;
+            isAutoTypingPaused = false; // Pastikan tidak dalam status jeda
+            autoTypingQueue = textToType.split(''); // Ubah string menjadi array karakter
+            userInputBuffer = []; // Reset buffer input manual saat memulai auto typing baru
+
+            if (disableUserInput) {
+                document.removeEventListener('keydown', handlePhysicalKeyboard);
+                // Also remove click listeners on keyboard keys if needed
+                // For this example, we'll just disable physical keyboard
+            } else {
+                 document.addEventListener('keydown', handlePhysicalKeyboard);
+            }
+
+            autoTypingInterval = setInterval(() => {
+                if (isAutoTypingPaused) {
+                    return; // Jangan ketik jika dijeda
+                }
+
+                if (autoTypingQueue.length > 0) {
+                    const char = autoTypingQueue.shift();
+
+                    let dataKeyForChar = char;
+                    let needsShift = false;
+                    let needsFn = false;
+
+                    let foundKeyData = null;
+                    for(const row of keyboardLayout) {
+                        for(const k of row) {
+                            if (k.main === char.toLowerCase()) {
+                                foundKeyData = k;
+                                if (char.toUpperCase() === char && char.toLowerCase() !== char) {
+                                    needsShift = true;
+                                    dataKeyForChar = k.dataKey;
+                                } else {
+                                    dataKeyForChar = k.dataKey;
+                                }
+                                break;
+                            }
+                            if (k.alt === char) {
+                                foundKeyData = k;
+                                needsFn = true;
+                                dataKeyForChar = k.dataKey;
+                                break;
+                            }
+                        }
+                        if (foundKeyData) break;
+                    }
+
+                    if (char === ' ') {
+                        dataKeyForChar = ' ';
+                    } else if (char === '\n') {
+                        dataKeyForChar = 'Enter';
+                    } else if (char === '\t') {
+                        dataKeyForChar = 'Tab';
+                    }
+
+                    if (needsShift) {
+                        isShiftActive = true;
+                        pressKeyVisual('Shift', true);
+                    }
+                    if (needsFn) {
+                        isFnActive = true;
+                        pressKeyVisual('Fn', true);
+                    }
+
+                    handleInput(dataKeyForChar, 'auto', char);
+
+                    if (needsShift) {
+                        setTimeout(() => {
+                            isShiftActive = false;
+                            pressKeyVisual('Shift', false);
+                        }, typingSpeed / 2);
+                    }
+                    if (needsFn) {
+                        setTimeout(() => {
+                            isFnActive = false;
+                            pressKeyVisual('Fn', false);
+                        }, typingSpeed / 2);
+                    }
+
+                    pressKeyVisual(dataKeyForChar, true);
+                    if (dataKeyForChar !== 'Shift' && dataKeyForChar !== 'Fn' && dataKeyForChar !== 'Control' && dataKeyForChar !== 'Alt') {
+                        setTimeout(() => pressKeyVisual(dataKeyForChar, false), typingSpeed * 0.8);
+                    }
+                } else {
+                    clearInterval(autoTypingInterval);
+                    isAutoTyping = false;
+                    if (callbackAfterFinish) {
+                        callbackAfterFinish();
+                    }
+                    appendToLog("Auto-typing finished.");
+                }
+            }, typingSpeed);
+        }
+
+        // Fungsi untuk menjeda simulasi pengetikan otomatis
+        function pauseAutoTyping() {
+            if (!isAutoTypingPaused) {
+                isAutoTypingPaused = true;
+                appendToLog("Auto-typing paused.");
+                clearTimeout(autoResumeTimeout);
+            }
+        }
+
+        // Fungsi untuk melanjutkan simulasi pengetikan otomatis
+        function resumeAutoTyping() {
+            if (isAutoTyping && isAutoTypingPaused) {
+                backspaceUserInput(() => {
+                    isAutoTypingPaused = false;
+                    appendToLog("Auto-typing resumed.");
+                });
+            }
+        }
+
+        // Fungsi untuk melakukan backspace pada input pengguna
+        function backspaceUserInput(callback) {
+            let backspaceCount = userInputBuffer.length;
+            let currentBackspaceIndex = 0;
+
+            if (backspaceCount === 0) {
+                if (callback) callback();
+                return;
+            }
+
+            const backspaceInterval = setInterval(() => {
+                if (currentBackspaceIndex < backspaceCount) {
+                    currentTypedCode = currentTypedCode.slice(0, -1);
+                    updateScreenContentInternal();
+                    currentBackspaceIndex++;
+                } else {
+                    clearInterval(backspaceInterval);
+                    userInputBuffer = [];
+                    if (callback) callback();
+                }
+            }, BACKSPACE_SPEED);
+        }
+
+        function updateScreenContentInternal() {
+            const existingBlinkingCursor = screenContent.querySelector('.blinking');
+            if (existingBlinkingCursor) {
+                existingBlinkingCursor.remove();
+            }
+
+            screenContent.innerHTML = `<pre><code class="language-javascript">${escapeHtml(currentTypedCode)}</code></pre>`;
+            hljs.highlightElement(screenContent.querySelector('code'));
+
+            const codeElement = screenContent.querySelector('code');
+            const span = document.createElement('span');
+            span.classList.add('blinking');
+            span.textContent = '|';
+            codeElement.appendChild(span);
+
+            screenContent.scrollTop = screenContent.scrollHeight;
+        }
+
+        function triggerAutoResume() {
+            clearTimeout(autoResumeTimeout);
+            autoResumeTimeout = setTimeout(() => {
+                resumeAutoTyping();
+            }, PAUSE_DURATION);
+        }
+
+        // --- Fungsi yang Sudah Ada ---
+
+        function updateScreenContent(char) {
+            if (char === 'BACKSPACE_CHAR') {
+                currentTypedCode = currentTypedCode.slice(0, -1);
+            } else {
+                currentTypedCode += char;
+            }
+            updateScreenContentInternal();
+        }
+
+        function escapeHtml(text) {
+            return text
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        function pressKeyVisual(dataKey, isActive) {
+            const keyElements = document.querySelectorAll(`[data-key="${dataKey}"]`);
+
+            keyElements.forEach(keyElement => {
+                if (isActive) {
+                    keyElement.classList.add('active');
+                    if (dataKey === 'Shift') {
+                        keyElement.classList.add('shift-active');
+                    } else if (dataKey === 'Fn') {
+                        keyElement.classList.add('fn-active');
+                    }
+                } else {
+                    keyElement.classList.remove('active');
+                    if (dataKey === 'Shift') {
+                        keyElement.classList.remove('shift-active');
+                    } else if (dataKey === 'Fn') {
+                        keyElement.classList.remove('fn-active');
+                    }
+                }
+            });
+        }
+
+        keyboardLayout.forEach(row => {
+            const rowDiv = document.createElement('div');
+            rowDiv.className = 'row';
+            row.forEach(keyData => {
+                const keyDiv = document.createElement('div');
+                keyDiv.classList.add('key');
+                keyDiv.setAttribute('data-key', keyData.dataKey);
+
+                const mainCharSpan = document.createElement('span');
+                mainCharSpan.classList.add('main-char');
+                mainCharSpan.textContent = keyData.main;
+                keyDiv.appendChild(mainCharSpan);
+
+                if (keyData.alt) {
+                    const altCharSpan = document.createElement('span');
+                    altCharSpan.classList.add('alt-char');
+                    if ('0123456789'.includes(keyData.alt)) {
+                        altCharSpan.classList.add('top-left');
+                    }
+                    altCharSpan.textContent = keyData.alt;
+                    keyDiv.appendChild(altCharSpan);
+                }
+
+                if (keyData.class) {
+                    keyDiv.classList.add(keyData.class);
+                }
+
+                rowDiv.appendChild(keyDiv);
+
+                if (!keyMap[keyData.dataKey]) {
+                    keyMap[keyData.dataKey] = [];
+                }
+                keyMap[keyData.dataKey].push({element: keyDiv, data: keyData});
+
+                keyDiv.addEventListener('click', () => {
+                    handleInput(keyData.dataKey, 'click');
+                });
+            });
+            keyboard.appendChild(rowDiv);
+        });
+
+        function handleInput(dataKey, source, charFromAuto = null) {
+            // Jeda pengetikan otomatis dan atur timer resume jika input manual
+            if (isAutoTyping && (source === 'physical' || source === 'click')) {
+                pauseAutoTyping();
+                triggerAutoResume(); // Atur ulang timer untuk melanjutkan
+            }
+
+            let charToType = '';
+
+            const targetKeyData = keyMap[dataKey] ? keyMap[dataKey][0].data : null;
+
+            if (dataKey === 'Enter') {
+                charToType = '\n';
+            } else if (dataKey === ' ') {
+                charToType = ' ';
+            } else if (dataKey === 'Backspace') {
+                if (source !== 'auto' && userInputBuffer.length > 0) {
+                    // Hanya backspace dari buffer input manual
+                    userInputBuffer.pop();
+                    charToType = 'BACKSPACE_CHAR';
+                } else if (source === 'auto') {
+                    charToType = 'BACKSPACE_CHAR'; // Biarkan auto typing backspace jika memang ada di antrian
+                } else {
+                    return; // Abaikan backspace jika tidak ada di buffer atau bukan dari auto-typing
+                }
+            } else if (dataKey === 'Tab') {
+                charToType = '    ';
+            } else if (dataKey === 'Shift') {
+                if (source !== 'auto') {
+                    isShiftActive = !isShiftActive;
+                    pressKeyVisual('Shift', isShiftActive);
+                } else if (charFromAuto) {
+                    charToType = charFromAuto;
+                }
+                return;
+            } else if (dataKey === 'Fn') {
+                if (source !== 'auto') {
+                    isFnActive = !isFnActive;
+                    pressKeyVisual('Fn', isFnActive);
+                } else if (charFromAuto) {
+                    charToType = charFromAuto;
+                }
+                return;
+            } else if (dataKey === 'Control' || dataKey === 'Alt') {
+                return;
+            } else if (targetKeyData) {
+                if (source === 'auto' && charFromAuto !== null) {
+                    charToType = charFromAuto;
+                } else if (isFnActive && targetKeyData.alt) {
+                    charToType = targetKeyData.alt;
+                } else if (isShiftActive && targetKeyData.main && targetKeyData.main.length === 1) {
+                    const shiftedChar = getShiftedChar(targetKeyData.main);
+                    charToType = shiftedChar;
+                } else {
+                    charToType = targetKeyData.main;
+                }
+            }
+
+            if (charToType) {
+                updateScreenContent(charToType);
+                if (source !== 'auto' && charToType !== 'BACKSPACE_CHAR') {
+                    userInputBuffer.push(charToType);
+                }
+            }
+
+            if (source === 'click' && (dataKey !== 'Shift' && dataKey !== 'Fn')) {
+                if (isShiftActive) {
+                    isShiftActive = false;
+                    pressKeyVisual('Shift', false);
+                }
+                if (isFnActive) {
+                    isFnActive = false;
+                    pressKeyVisual('Fn', false);
+                }
+            }
+        }
+
+        function getShiftedChar(char) {
+            const shiftMap = {
+                '`': '~', '1': '!', '2': '@', '3': '#', '4': '$', '5': '%', '6': '^', '7': '&', '8': '*', '9': '(', '0': ')',
+                '-': '_', '=': '+', '[': '{', ']': '}', '\\': '|', ';': ':', '\'': '"', ',': '<', '.': '>', '/': '?',
+                'q': 'Q', 'w': 'W', 'e': 'E', 'r': 'R', 't': 'T', 'y': 'Y', 'u': 'U', 'i': 'I', 'o': 'O', 'p': 'P',
+                'a': 'A', 's': 'S', 'd': 'D', 'f': 'F', 'g': 'G', 'h': 'H', 'j': 'J', 'k': 'K', 'l': 'L',
+                'z': 'Z', 'x': 'X', 'c': 'C', 'v': 'V', 'b': 'B', 'n': 'N', 'm': 'M'
+            };
+            return shiftMap[char] || char.toUpperCase();
+        }
+
+        // --- Event Listeners untuk Keyboard Fisik ---
+        function handlePhysicalKeyboard(event) {
+            const key = event.key;
+            const code = event.code;
+
+            // Jeda pengetikan otomatis dan atur timer resume
+            if (isAutoTyping) {
+                pauseAutoTyping();
+                triggerAutoResume();
+            }
+
+            if (key === 'Shift') {
+                if (!isShiftActive) {
+                    isShiftActive = true;
+                    pressKeyVisual('Shift', true);
+                }
+                event.preventDefault();
+                return;
+            } else if (key === 'Control') {
+                pressKeyVisual('Control', true);
+                event.preventDefault();
+                return;
+            } else if (key === 'Alt') {
+                pressKeyVisual('Alt', true);
+                event.preventDefault();
+                return;
+            } else if (key === 'Fn') {
+                 if (!isFnActive) {
+                    isFnActive = true;
+                    pressKeyVisual('Fn', true);
+                }
+                event.preventDefault();
+                return;
+            }
+
+            pressKeyVisual(key, true);
+
+            let dataKeyToUse = key;
+            if (key === ' ') dataKeyToUse = ' ';
+            if (key === 'Backspace') dataKeyToUse = 'Backspace';
+            if (key === 'Tab') dataKeyToUse = 'Tab';
+            if (key === 'Enter') dataKeyToUse = 'Enter';
+
+            handleInput(dataKeyToUse, 'physical', event.shiftKey ? getShiftedChar(key) : key);
+            event.preventDefault();
+        }
+
+        document.addEventListener('keydown', handlePhysicalKeyboard);
+
+        document.addEventListener('keyup', (event) => {
+            const key = event.key;
+
+            if (key === 'Shift') {
+                isShiftActive = false;
+                pressKeyVisual('Shift', false);
+            } else if (key === 'Control') {
+                pressKeyVisual('Control', false);
+            } else if (key === 'Alt') {
+                pressKeyVisual('Alt', false);
+            } else if (key === 'Fn') {
+                isFnActive = false;
+                pressKeyVisual('Fn', false);
+            } else {
+                pressKeyVisual(key, false);
+            }
+            // Setelah keyup, jika ada input manual (bukan modifier), atur ulang timeout resume
+            if (isAutoTyping && (key !== 'Shift' && key !== 'Control' && key !== 'Alt' && key !== 'Fn')) {
+                triggerAutoResume();
+            }
+        });
+
+        // --- Fungsi Simulasi Alur Baru ---
+
+        function showEmosiNotHandledException() {
+            const errorMessage = `
+        <div class="error-message">
+          <strong><span style="color: red;">EmosiNotHandledException:</span></strong><br>
+          Emosi terlalu lama dikubur.<br>
+          Hidup hanya berjalan... tanpa rasa.<br>
+          <span style="color: #9B9B9B;">Attempting emergency fix...</span>
+        </div>
+      `;
+            // Add a new line before showing error
+            currentTypedCode += '\n'; // Add newline to ensure error appears on a new line
+            updateScreenContentInternal(); // Render with new line
+            const blink = screenContent.querySelector('.blinking');
+            if (blink) blink.remove();
+            screenContent.innerHTML += errorMessage; // Append error message
+            screen.style.color = 'red'; // Screen color changes to red
+            screenContent.scrollTop = screenContent.scrollHeight;
+            appendToLog("ERROR: EmosiNotHandledException caught. Initiating fix sequence.");
+        }
+
+        function showYourMindIsBrokenError() {
+            const errorMessage = `
+        <div class="error-message">
+          <strong><span style="color: red;">CRITICAL ERROR:</span></strong><br>
+          Your mind is broken.<br>
+          System integrity compromised.
+          <span style="color: #9B9B9B;"><br>Forced reboot required.</span>
+        </div>
+      `;
+            // Add a new line before showing error
+            currentTypedCode += '\n'; // Add newline to ensure error appears on a new line
+            updateScreenContentInternal(); // Render with new line
+            const blink = screenContent.querySelector('.blinking');
+            if (blink) blink.remove();
+            screenContent.innerHTML += errorMessage; // Append error message
+            screen.style.color = 'red';
+            screenContent.scrollTop = screenContent.scrollHeight;
+            appendToLog("CRITICAL ERROR: Your mind is broken. Forced reboot.");
+        }
+
+        function appendToLog(message) {
+            const timestamp = new Date().toLocaleTimeString();
+            systemLog.innerHTML += `<span style="color: #9B9B9B;">[${timestamp}]</span> ${message}\n`;
+            systemLog.scrollTop = systemLog.scrollHeight;
+        }
+
+        function startGlitchEffect() {
+            screen.classList.add('glitch-effect');
+        }
+
+        function stopGlitchEffect() {
+            screen.classList.remove('glitch-effect');
+        }
+
+        function startStaticEffect() {
+            staticOverlay.style.opacity = 0.04;
+            staticOverlay.style.animationPlayState = 'running';
+        }
+
+        function stopStaticEffect() {
+            staticOverlay.style.opacity = 0;
+            staticOverlay.style.animationPlayState = 'paused';
+        }
+
+        function startLoadingBarAnimation() {
+            screenContent.style.display = 'none'; // Hide content when loading bar appears
+            loadingBarContainer.style.display = 'flex'; // Show loading bar
+            let loadingProgress = 0;
+            loadingBar.style.width = '0%';
+            loadingText.textContent = "INITIATING REBOOT...";
+            let loadingInterval = setInterval(() => {
+                loadingProgress += 5;
+                if (loadingProgress > 100) {
+                    loadingProgress = 100;
+                }
+                loadingBar.style.width = loadingProgress + '%';
+                loadingText.textContent = `REBOOTING: ${loadingProgress}%`;
+
+                if (loadingProgress >= 100) {
+                    clearInterval(loadingInterval);
+                    appendToLog("Reboot sequence complete.");
+                    // Reset screen and start fresh for next sequence or initial state
+                    loadingBarContainer.style.display = 'none';
+                    screenContent.style.display = 'flex'; // Show screen content again
+                    currentTypedCode = ''; // Clear for next sequence
+                    updateScreenContentInternal(); // Reset cursor
+                    screen.style.color = '#0F0'; // Back to green
+                    stopGlitchEffect();
+                    stopStaticEffect();
+                    appendToLog("System rebooted. Ready for new input.");
+                    document.addEventListener('keydown', handlePhysicalKeyboard); // Re-enable keyboard
+
+                    // *** START LOOP HERE ***
+                    setTimeout(runSimulationSequence, RESTART_DELAY); // Panggil ulang untuk looping
+                }
+            }, 100);
+        }
+
+        // Fungsi untuk menampilkan dan menyembunyikan logo ASCII
+        function showAsciiLogo() {
+            screenContent.style.display = 'none'; // Sembunyikan konten terminal
+            asciiLogoContainer.innerHTML = `<pre>${asciiLogo}</pre>`;
+            asciiLogoContainer.classList.add('show');
+            appendToLog("Displaying ASCII logo...");
+        }
+
+        function hideAsciiLogo(callback) {
+            asciiLogoContainer.classList.remove('show');
+            asciiLogoContainer.classList.add('hide');
+            // Beri sedikit waktu untuk transisi opacity sebelum menghapus
+            setTimeout(() => {
+                asciiLogoContainer.innerHTML = '';
+                asciiLogoContainer.classList.remove('hide');
+                screenContent.style.display = 'flex'; // Tampilkan kembali konten terminal
+                if (callback) callback();
+            }, 1000); // Sesuaikan durasi transisi CSS
+        }
+
+        // --- Alur Simulasi Utama ---
+        function runSimulationSequence() {
+            currentTypedCode = ''; // Bersihkan layar
+            updateScreenContentInternal(); // Tampilkan kursor kosong
+            screen.style.color = '#0F0'; // Pastikan warna hijau awal
+            startGlitchEffect();
+            startStaticEffect();
+            appendToLog("System initiated. Waiting to start code simulation...");
+            systemLog.scrollTop = systemLog.scrollHeight; // Scroll log ke bawah
+
+            // Tampilkan logo parabola dulu
+            showAsciiLogo();
+
+            setTimeout(() => {
+                hideAsciiLogo(() => {
+                    appendToLog("Starting code simulation...");
+                    startAutoTyping(codeLines, () => {
+                        showEmosiNotHandledException();
+                        setTimeout(() => {
+                            startAutoTyping(fixingCodeLines, () => {
+                                showYourMindIsBrokenError();
+                                setTimeout(() => {
+                                    currentTypedCode = '';
+                                    updateScreenContentInternal();
+                                    screenContent.style.justifyContent = 'flex-start';
+                                    screenContent.style.alignItems = 'flex-start';
+
+                                    appendToLog("WARNING: Don't touch the keyboard again while auto typing is running!");
+                                    setTimeout(() => {
+                                        startAutoTyping(rebootCommandLines, () => {
+                                            appendToLog("Reboot commands sent. System preparing for restart...");
+                                            setTimeout(startLoadingBarAnimation, 1000);
+                                        }, true);
+                                    }, 1500);
+                                }, 3000);
+                            });
+                        }, 3000);
+                    });
+                });
+            }, INITIAL_DELAY); // Delay sebelum logo menghilang dan pengetikan dimulai
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            runSimulationSequence();
+        });
+    </script>
+</body>
+</html>
