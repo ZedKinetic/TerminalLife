@@ -990,7 +990,7 @@ Preparing for restart...`;
             screen.style.color = '#0F0'; // Pastikan warna hijau awal
             startGlitchEffect();
             startStaticEffect();
-            appendToLog("System initiated. Waiting to start code simulation...");
+            appendToLog("System initiated. Waiting to start code...");
             systemLog.scrollTop = systemLog.scrollHeight; // Scroll log ke bawah
 
             // Tampilkan logo parabola dulu
@@ -998,7 +998,7 @@ Preparing for restart...`;
 
             setTimeout(() => {
                 hideAsciiLogo(() => {
-                    appendToLog("Starting code simulation...");
+                    appendToLog("Starting code...");
                     startAutoTyping(codeLines, () => {
                         showEmosiNotHandledException();
                         setTimeout(() => {
