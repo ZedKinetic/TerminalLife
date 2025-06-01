@@ -6,6 +6,7 @@
     <title>Terminal Life</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
     <style>
+        /* General Styles */
         * { box-sizing: border-box; }
         body {
             background-color: #0d0d0d;
@@ -19,28 +20,38 @@
             min-height: 100vh;
         }
 
-        .container {
+        .main-content-wrapper {
+            display: flex;
+            flex-direction: row;
+            gap: 1rem;
             width: 100%;
-            max-width: 600px;
+            max-width: 1000px;
+            justify-content: center;
+        }
+
+        .terminal-panel {
             display: flex;
             flex-direction: column;
             align-items: center;
+            width: 100%;
+            max-width: 600px;
         }
 
+        /* Terminal Screen Styles */
         .screen {
             background-color: #000;
             border: 2px solid #333333;
-            padding: 1rem;
+            padding: 0.5rem;
             width: 100%;
-            height: 380px;
+            height: 200px;
             overflow-y: auto;
-            font-size: 0.8rem;
-            margin-bottom: 1rem;
+            font-size: 0.6rem;
+            margin-bottom: 0.4rem;
             position: relative;
-            color: #0F0; /* Default text color, can be changed by JS */
+            color: #0F0;
             display: flex;
             flex-direction: column;
-            justify-content: flex-start; /* Align content to the top */
+            justify-content: flex-start;
             align-items: flex-start;
             text-align: left;
         }
@@ -69,12 +80,12 @@
         .screen-content pre {
             margin: 0;
             padding: 0;
-            width: 100%; /* Ensure pre takes full width */
+            width: 100%;
         }
 
         .screen-content pre code {
             background-color: #000 !important;
-            color: #C8C8C8; /* Default code color */
+            color: #C8C8C8;
             display: block;
             padding: 0;
             margin: 0;
@@ -88,10 +99,10 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background-image: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNCIgaGVpZ2h0PSI0IiB2aWV3Qm94PSIwIDAgNCA0IiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxnIGZpbGw9IiM5YjliOWIiIGZpbGwtb3BhY2l0eT0iMC4xIiBmaWxsLXJ1bGU9ImV2ZW5vZCI+PHBhdGggZD0iTTAgMGg0VjRIMDBWMHoiLz48cGF0aCBkPSJNMCAwdjJoMlYwSDB6Ii8+PHBhdGggZD0iTTIgMmgyVjRIMnpNLTAuMi0wLjJoMS43VjEuNUgtMC4yWiIvPjwvZz48L3N2Zz4=');
+            background-image: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNCIgaGVpZ2h0PSI0IiB2aWV3Qm94PSIwIDAgNCA0IiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxnIGZpbGw9IiM5YjliOWIiIGZpbGwtb3BhY2l0eT0iMC4xIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxwYXRoIGQ9Ik0wIDhoNFY0SDBWMHoiLz48cGF0aCBkPSJNMCAwdjJoMlYwSDB6Ii8+PHBhdGggZD0iTTIgMmgyVjRIMnpNLTAuMi0wLjJoMS43VjEuNUgtMC4yWiIvPjwvZz48L3N2Zz4=');
             animation: static-flicker 3s infinite steps(10);
             pointer-events: none;
-            opacity: 0; /* Hidden by default */
+            opacity: 0;
             mix-blend-mode: overlay;
         }
 
@@ -100,6 +111,7 @@
             10%, 30%, 70% { opacity: 0.04; }
         }
 
+        /* Keyboard Styles */
         .keyboard {
             display: flex;
             flex-direction: column;
@@ -124,18 +136,18 @@
             width: 2.2rem;
             user-select: none;
             transition: 0.1s;
-            position: relative; /* For layered text */
+            position: relative;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            height: 2.2rem; /* Ensure consistent height */
-            cursor: pointer; /* Indicate clickable */
+            height: 2.2rem;
+            cursor: pointer;
         }
 
         .key.wide { width: 4.5rem; }
-        .key.space { flex-grow: 1; min-width: 10rem; } /* Use flex-grow for spacebar */
-        .key.ctrl-wide { width: 3.5rem; } /* Custom width for Ctrl/Fn/Alt */
+        .key.space { flex-grow: 1; min-width: 10rem; }
+        .key.ctrl-wide { width: 3.5rem; }
         .key.tab { width: 3.5rem; }
         .key.backspace { width: 3.5rem; }
 
@@ -145,17 +157,15 @@
             transform: scale(0.95);
         }
 
-        /* Styles for active Shift/Fn layer */
         .key.shift-active, .key.fn-active {
-            background-color: #6a6a6a; /* A different highlight for modifier keys */
+            background-color: #6a6a6a;
             color: #fff;
         }
 
-
         .key .main-char {
             font-size: 0.8rem;
-            line-height: 1; /* Adjust line height for better spacing */
-            text-transform: lowercase; /* Default to lowercase for keys */
+            line-height: 1;
+            text-transform: lowercase;
         }
 
         .key .alt-char {
@@ -163,7 +173,7 @@
             position: absolute;
             bottom: 0.2rem;
             right: 0.2rem;
-            color: #8A8A8A; /* Lighter color for alt chars */
+            color: #8A8A8A;
             line-height: 1;
         }
         .key .alt-char.top-left {
@@ -173,22 +183,20 @@
             bottom: auto;
         }
 
-
-        /* Error message style */
+        /* Message & Log Styles */
         .error-message {
             color: red;
             font-size: 0.95rem;
             padding-top: 1rem;
             border-top: 1px solid #555;
             margin-top: 1rem;
-            animation: breathe 2s ease-in-out infinite alternate; /* Breath effect */
+            animation: breathe 2s ease-in-out infinite alternate;
         }
 
         @keyframes breathe {
             0% { opacity: 0.8; }
             100% { opacity: 1; }
         }
-
 
         .blinking {
             animation: blink 1s infinite;
@@ -208,7 +216,7 @@
             overflow-y: auto;
             white-space: pre-line;
             font-size: 0.7rem;
-            margin-bottom: 1rem;
+            margin-bottom: 0.1rem;
             color: #8A8A8A;
         }
 
@@ -217,21 +225,21 @@
             background-color: #1a1a1a;
             border: 1px solid #555;
             height: 1.2rem;
-            display: none; /* Hidden by default */
-            position: absolute; /* Changed to absolute for centering */
-            top: 50%; /* Center vertically */
-            left: 50%; /* Center horizontally */
-            transform: translate(-50%, -50%); /* Adjust for perfect centering */
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
             text-align: center;
             color: #C8C8C8;
             font-size: 0.8rem;
-            margin-top: 0; /* Remove previous margin-top */
+            margin-top: 0;
         }
 
         .loading-bar {
             height: 100%;
-            width: 0%; /* Controlled by JS */
-            background-color: #888; /* Monochrome color */
+            width: 0%;
+            background-color: #888;
             transition: width 0.1s linear;
             position: absolute;
             top: 0;
@@ -243,7 +251,7 @@
             position: relative;
             z-index: 2;
             line-height: 1.2rem;
-            color: #ccc; /* Monochrome text color */
+            color: #ccc;
         }
 
         .boot-text, .terminal-intro-text {
@@ -262,12 +270,12 @@
             left: 50%;
             transform: translate(-50%, -50%);
             white-space: pre;
-            font-size: 0.8rem; /* Adjust as needed */
-            color: #0F0; /* Green terminal color */
-            text-shadow: 0 0 5px #0F0; /* Subtle glow */
-            opacity: 0; /* Hidden by default */
+            font-size: 0.8rem;
+            color: #0F0;
+            text-shadow: 0 0 5px #0F0;
+            opacity: 0;
             transition: opacity 1s ease-in-out;
-            animation: flicker-logo 0.1s infinite alternate; /* Subtle flicker */
+            animation: flicker-logo 0.1s infinite alternate;
         }
 
         .ascii-logo-container.show {
@@ -283,14 +291,240 @@
             100% { text-shadow: 0 0 6px #0F0; }
         }
 
+        /* --- LIVE PREVIEW STYLES (ERASER.IO INSPIRED) --- */
+        .live-preview-panel {
+            width: 100%;
+            max-width: 400px;
+            height: 380px;
+            margin-bottom: 0.2rem;
+            background: rgba(10, 10, 10, 0.4);
+            border-radius: 12px;
+            border: 1px solid rgba(50, 50, 50, 0.3);
+            box-shadow:
+                -7px -7px 15px rgba(25, 25, 25, 0.8),
+                7px 7px 15px rgba(0, 0, 0, 0.5),
+                inset 2px 2px 5px rgba(200, 200, 200, 0.05),
+                inset -2px -2px 5px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: #E0E0E0;
+            font-size: 0.9rem;
+            text-align: center;
+            padding: 1rem;
+            transition: all 0.5s ease-in-out;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .preview-title {
+            position: absolute;
+            top: 10px;
+            left: 15px;
+            font-size: 0.7rem;
+            color: #8A8A8A;
+        }
+
+        .preview-content {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            gap: 10px;
+            padding-top: 20px;
+        }
+
+        .preview-svg-container {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: absolute;
+            top: 0;
+            left: 0;
+            padding-top: 20px;
+        }
+
+        .preview-svg-container svg {
+            width: 90%;
+            height: 90%;
+            overflow: visible;
+        }
+
+        /* Define Node Colors as CSS Variables */
+        :root {
+            --node-self-fill: #1CBFFF57;
+            --node-self-stroke: #00BFFF;
+            --node-emotions-fill: #6A5ACD;
+            --node-emotions-stroke: #8A2BE2;
+            --node-system-fill: #FF8C00;
+            --node-system-stroke: #FFA07A;
+            --node-mind-schema-fill: #3CB371;
+            --node-mind-schema-stroke: #66CDAA;
+            --node-logic-fill: #4682B4; /* SteelBlue */
+            --node-logic-stroke: #6A9ACA;
+            --node-lost-control-fill: #8B0000; /* DarkRed */
+            --node-lost-control-stroke: #FF0000;
+            --node-healing-fill: #228B22; /* ForestGreen */
+            --node-healing-stroke: #3CB371;
+        }
+
+        /* Diagram Node Styles */
+        .diagram-node {
+            fill: var(--node-default-fill, #343434); /* Soft dark grey */
+            stroke: var(--node-default-stroke, #666); /* Slightly lighter border */
+            stroke-width: 1.5px;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out, transform 0.3s ease-in-out, stroke 0.3s ease-in-out, fill 0.3s ease-in-out, filter 0.3s ease-in-out;
+            border-radius: 8px; /* Rounded corners */
+            filter: drop-shadow(0px 2px 4px rgba(0,0,0,0.5)); /* Subtle shadow */
+        }
+
+        .diagram-node.active {
+            opacity: 1;
+            transform: scale(1.02); /* Slight pop */
+            stroke: #888;
+            filter: drop-shadow(0px 4px 8px rgba(0,0,0,0.7)); /* Deeper shadow when active */
+        }
+
+        .diagram-node.highlight {
+            stroke-width: 2.5px;
+            filter: drop-shadow(0 0 10px rgba(0, 191, 255, 0.4)); /* Stronger glow for highlight */
+        }
+
+        /* Specific Node Colors - using lighter, softer tones for highlight */
+        #node-self { fill: var(--node-self-fill); stroke: var(--node-self-stroke); }
+        #node-emotions { fill: var(--node-emotions-fill); stroke: var(--node-emotions-stroke); }
+        #node-system { fill: var(--node-system-fill); stroke: var(--node-system-stroke); }
+        #node-mind-schema { fill: var(--node-mind-schema-fill); stroke: var(--node-mind-schema-stroke); }
+        #node-logic { fill: var(--node-logic-fill); stroke: var(--node-logic-stroke); }
+        #node-lost-control { fill: var(--node-lost-control-fill); stroke: var(--node-lost-control-stroke); }
+        #node-healing { fill: var(--node-healing-fill); stroke: var(--node-healing-stroke); }
+
+        /* Diagram Line Styles */
+        .diagram-line {
+            stroke: #555;
+            stroke-width: 2.5;
+            fill: none;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out, stroke-width 0.3s ease-in-out;
+            stroke-dasharray: 0;
+            stroke-dashoffset: 0;
+        }
+        .diagram-line.active { opacity: 1; }
+
+        /* Animated Line Styles */
+        .diagram-line.drawing {
+            stroke-dasharray: 1000;
+            stroke-dashoffset: 1000;
+            animation: draw-line 1s forwards linear; /* Reduced duration for faster animation */
+        }
+
+        @keyframes draw-line {
+            to { stroke-dashoffset: 0; }
+        }
+
+        .diagram-line.glow {
+            filter: drop-shadow(0 0 6px var(--line-color, #fff));
+            transition: filter 0.3s ease-in-out;
+        }
+
+        /* Specific Line Colors */
+        #line-disconnect { stroke: #9B9B9B; } /* Grey */
+        #line-bury-emotion { stroke: #FF8C00; } /* Dark Orange */
+        #line-error-overload {
+            stroke: #FF0000; /* Red */
+            filter: drop-shadow(0 0 10px #FF0000);
+        }
+        #line-diagnose { stroke: #FFD700; } /* Gold */
+        #line-repair { stroke: #3CB371; } /* Medium Sea Green */
+        #line-reboot { stroke: #ADFF2F; } /* Green Yellow */
+        #line-process-logic { stroke: #4682B4; } /* SteelBlue */
+        #line-evaluate-truth { stroke: #6A5ACD; } /* MediumPurple */
+        #line-error-to-lost { stroke: #FF4500; } /* OrangeRed */
+        #line-repair-to-healing { stroke: #228B22; } /* ForestGreen */
+        #line-healing-to-self { stroke: #1CBFFF; } /* DeepSkyBlue */
+
+        /* Error Line Styles */
+        #line-error-overload.broken, #line-error-to-lost.broken {
+            stroke-dasharray: 8 4; /* Dashed effect */
+            animation: none;
+            transition: stroke-dasharray 0.3s ease-out;
+        }
+        #line-error-overload.flicker, #line-error-to-lost.flicker {
+            animation: error-flicker 0.1s infinite alternate;
+        }
+
+        @keyframes error-flicker {
+            0% { opacity: 1; }
+            100% { opacity: 0.7; }
+        }
+
+        /* Text Styles */
+        .diagram-text {
+            fill: #E0E0E0; /* Lighter text for better contrast on dark nodes */
+            font-size: 10px;
+            font-family: 'Segoe UI', sans-serif; /* More modern font */
+            font-weight: 500;
+            text-anchor: middle;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+            /* text-shadow: 0 0 3px rgba(0,0,0,0.5); /* Subtle shadow for text */
+        }
+        .diagram-text.active { opacity: 1; }
+        .diagram-text.highlight { fill: #fff; filter: drop-shadow(0 0 4px #fff); }
+
+        /* Specific text color for error */
+        #text-error-overload, #text-lost-control { fill: #FF0000; }
+
+        /* Arrow Styles */
+        .diagram-arrow {
+            fill: #555; /* Default arrow fill, matches line stroke */
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+        }
+        .diagram-arrow.active { opacity: 1; }
+        .diagram-arrow.highlight { fill: var(--arrow-color, #fff); filter: drop-shadow(0 0 4px var(--arrow-color, #fff)); }
+
+        #arrow-disconnect { fill: #9B9B9B; }
+        #arrow-bury-emotion { fill: #FF8C00; }
+        #arrow-error-overload { fill: #FF4500; }
+        #arrow-diagnose { fill: #FFD700; }
+        #arrow-repair { fill: #3CB371; }
+        #arrow-reboot { fill: #ADFF2F; }
+        #arrow-process-logic { fill: #4682B4; }
+        #arrow-evaluate-truth { fill: #6A5ACD; }
+        #arrow-error-to-lost { fill: #FF4500; }
+        #arrow-repair-to-healing { fill: #228B22; }
+        #arrow-healing-to-self { fill: #1CBFFF; }
+
+        @media (max-width: 768px) {
+            .main-content-wrapper {
+                flex-direction: column;
+                align-items: center;
+            }
+            .terminal-panel, .live-preview-panel {
+                max-width: 600px;
+            }
+            .ascii-logo-container { font-size: 0.6rem; }
+            .keyboard { margin-top: 1rem; }
+        }
+
         @media (max-width: 480px) {
             .key { padding: 0.6rem 0.4rem; width: 2rem; font-size: 0.7rem; height: 2rem; }
-            .key.space { min-width: 8rem; } /* Adjust for smaller screens */
+            .key.space { min-width: 8rem; }
             .key.wide { width: 4rem; }
             .key.ctrl-wide { width: 3rem; }
             .key.tab { width: 3rem; }
             .key.backspace { width: 3rem; }
-            .ascii-logo-container { font-size: 0.6rem; } /* Smaller font for logo on small screens */
+            .ascii-logo-container { font-size: 0.5rem; }
+            .live-preview-panel { height: 220px; font-size: 0.8rem; }
         }
     </style>
 </head>
@@ -342,23 +576,98 @@
         </filter>
     </svg>
 
-    <div class="container">
-        <div class="screen" id="screen">
-            <div class="static-overlay" id="staticOverlay"></div>
-            <div class="screen-content" id="screenContent">
-                <span class="blinking">|</span>
-            </div>
-            <div class="ascii-logo-container" id="asciiLogoContainer"></div>
+    <div class="main-content-wrapper">
+        <div class="live-preview-panel" id="livePreviewPanel">
+    <div class="preview-title">LIVE PREVIEW</div>
+    <div class="preview-svg-container" id="previewSvgContainer">
+        <svg viewBox="0 0 400 300">
+            <rect id="node-self" class="diagram-node" x="50" y="120" width="75" height="50" rx="12" ry="12" />
+            <text id="text-self" class="diagram-text" x="87.5" y="150">SELF</text>
+            
+            <rect id="node-emotions" class="diagram-node" x="180" y="40" width="90" height="50" rx="12" ry="12" />
+            <text id="text-emotions" class="diagram-text" x="225" y="70">EMOTIONS</text>
+            
+            <rect id="node-system" class="diagram-node" x="180" y="190" width="90" height="50" rx="12" ry="12" />
+            <text id="text-system" class="diagram-text" x="225" y="220">SYSTEM</text>
+            
+            <rect id="node-mind-schema" class="diagram-node" x="300" y="190" width="90" height="50" rx="12" ry="12" />
+            <text id="text-mind-schema" class="diagram-text" x="350" y="220">MIND SCHEMA</text>
+            
+            <rect id="node-logic" class="diagram-node" x="300" y="70" width="75" height="50" rx="12" ry="12" />
+            <text id="text-logic" class="diagram-text" x="337.5" y="100">LOGIC</text>
+            
+            <rect id="node-lost-control" class="diagram-node" x="280" y="120" width="100" height="50" rx="12" ry="12" />
+            <text id="text-lost-control" class="diagram-text" x="330" y="150">LOST CONTROL</text>
+            
+            <rect id="node-healing" class="diagram-node" x="25" y="220" width="75" height="50" rx="12" ry="12" />
+            <text id="text-healing" class="diagram-text" x="62.5" y="250">HEALING</text>
+            
+            <path id="line-process-logic" class="diagram-line" d="M125 145 C 160 145, 250 100, 295 95" />
+            <text id="text-process-logic" class="diagram-text" x="200" y="105">mind.process.logic</text>
+            <polygon id="arrow-process-logic" class="diagram-arrow" points="295,90 300,95 295,100" />
+            
+            <path id="line-evaluate-truth" class="diagram-line" d="M345.5 125 L345.5 185" />
+            <text id="text-evaluate-truth" class="diagram-text" x="385" y="155">logic.evaluate</text>
+            <polygon id="arrow-evaluate-truth" class="diagram-arrow" points="340.5,185 345.5,190 350.5,185" />
+            
+            <path id="line-disconnect" class="diagram-line" d="M130 145 C 160 145, 140 70, 170 65" />
+            <text id="text-disconnect" class="diagram-text" x="120" y="90">disconnect</text>
+            <polygon id="arrow-disconnect" class="diagram-arrow" points="170,60 175,65 170,70" />
+            
+            <path id="line-bury-emotion" class="diagram-line" d="M125 145 C 150 160, 200 150, 220 95" />
+            <text id="text-bury-emotion" class="diagram-text" x="150" y="115">buryEmotion</text>
+            <polygon id="arrow-bury-emotion" class="diagram-arrow" points="215,95 220,90 225,95" />
+            
+            <path id="line-error-overload" class="diagram-line" d="M225 90 C 200 120, 250 160, 225 190" />
+            <text id="text-error-overload" class="diagram-text" x="190" y="145">OVERLOAD!</text>
+            <polygon id="arrow-error-overload" class="diagram-arrow" points="220,185 225,190 230,185" />
+            
+            <path id="line-error-to-lost" class="diagram-line" d="M225 90 C 250 120, 200 160, 273 145" />
+            <text id="text-error-to-lost" class="diagram-text" x="255" y="120">ERROR</text>
+            <polygon id="arrow-error-to-lost" class="diagram-arrow" points="270,140 275,145 270,150" />
+            
+            <path id="line-diagnose" class="diagram-line" d="M225 190 C 250 160, 200 120, 225 94" />
+            <text id="text-diagnose" class="diagram-text" x="255" y="140">diagnose</text>
+            <polygon id="arrow-diagnose" class="diagram-arrow" points="220,95 225,90 230,95" />
+            
+            <path id="line-repair" class="diagram-line" d="M270 215 L300 215" />
+            <text id="text-repair" class="diagram-text" x="285" y="205">repair</text>
+            <polygon id="arrow-repair" class="diagram-arrow" points="295,210 300,215 295,220" />
+            
+            <path id="line-repair-to-healing" class="diagram-line" d="M300 215 C 250 250, 150 260, 100 245" />
+            <text id="text-repair-to-healing" class="diagram-text" x="200" y="260">initiateHealing</text>
+            <polygon id="arrow-repair-to-healing" class="diagram-arrow" points="95,240 100,245 95,250" />
+            
+            <path id="line-healing-to-self" class="diagram-line" d="M62.5 220 C60.5 195, 85 205, 85 175" />
+            <text id="text-healing-to-self" class="diagram-text" x="62.5" y="195">integrateHealing</text>
+            <polygon id="arrow-healing-to-self" class="diagram-arrow" points="80.5,178 85,173 90.5,178" />
+            
+            <path id="line-reboot" class="diagram-line" d="M85.5 175 C 60 290, 210 300, 225 245" />
+            <text id="text-reboot" class="diagram-text" x="150" y="260">reboot</text>
+            <polygon id="arrow-reboot" class="diagram-arrow" points="220,245 225,240 230,245" />
+        </svg>
+    </div>
+</div>
+        <div class="terminal-panel">
+            <div class="screen" id="screen">
+                <div class="static-overlay" id="staticOverlay"></div>
+                <div class="screen-content" id="screenContent">
+                    <span class="blinking">|</span>
+                </div>
+                <div class="ascii-logo-container" id="asciiLogoContainer"></div>
 
-            <div class="loading-bar-container" id="loadingBarContainer">
-                <div class="loading-bar" id="loadingBar"></div>
-                <div class="loading-text" id="loadingText">INITIATING REBOOT...</div>
+                <div class="loading-bar-container" id="loadingBarContainer">
+                    <div class="loading-bar" id="loadingBar"></div>
+                    <div class="loading-text" id="loadingText">INITIATING REBOOT...</div>
+                </div>
+            </div>
+            <div class="system-log" id="systemLog">
+            </div>
+            <div class="keyboard" id="keyboard">
             </div>
         </div>
-        <div class="system-log" id="systemLog">
-            </div>
-        <div class="keyboard" id="keyboard">
-            </div>
+
+        
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
@@ -370,9 +679,9 @@
         };
 
         const keyboardLayout = [
-            [{main: 'tab', dataKey: 'Tab', class: 'tab'}, {main: 'q', alt: '1', dataKey: 'q'}, {main: 'w', alt: '2', dataKey: 'w'}, {main: 'e', alt: '3', dataKey: 'e'}, {main: 'r', alt: '4', dataKey: 'r'}, {main: 't', alt: '5', dataKey: 't'}, {main: 'y', alt: '6', dataKey: 'y'}, {main: 'u', alt: '7', dataKey: '7'}, {main: 'i', alt: '8', dataKey: 'i'}, {main: 'o', alt: '9', dataKey: 'o'}, {main: 'p', alt: '0', dataKey: 'p'}, {main: 'del', dataKey: 'Backspace', class: 'backspace'}],
+            [{main: 'tab', dataKey: 'Tab', class: 'tab'}, {main: 'q', alt: '1', dataKey: 'q'}, {main: 'w', alt: '2', dataKey: 'w'}, {main: 'e', alt: '3', dataKey: 'e'}, {main: 'r', alt: '4', dataKey: 'r'}, {main: 't', alt: '5', dataKey: 't'}, {main: 'y', alt: '6', dataKey: '6'}, {main: 'u', alt: '7', dataKey: '7'}, {main: 'i', alt: '8', dataKey: '8'}, {main: 'o', alt: '9', dataKey: '9'}, {main: 'p', alt: '0', dataKey: 'p'}, {main: 'del', dataKey: 'Backspace', class: 'backspace'}],
             [{main: 'a', alt: '!', dataKey: 'a'}, {main: 's', alt: '@', dataKey: 's'}, {main: 'd', alt: '#', dataKey: 'd'}, {main: 'f', alt: '$', dataKey: 'f'}, {main: 'g', alt: '%', dataKey: 'g'}, {main: 'h', alt: '^', dataKey: 'h'}, {main: 'j', alt: '&', dataKey: 'j'}, {main: 'k', alt: '*', dataKey: 'k'}, {main: 'l', alt: '(', dataKey: 'l'}, {main: ';', alt: ':', dataKey: ';'}, {main: '\'', alt: ')', dataKey: '\''}, {main: 'Enter', dataKey: 'Enter', class: 'wide'}],
-            [{main: 'Shift', dataKey: 'Shift', class: 'wide'}, {main: 'z', alt: '[', dataKey: 'z'}, {main: 'x', alt: ']', dataKey: 'x'}, {main: 'c', alt: '{', dataKey: 'c'}, {main: 'v', alt: '}', dataKey: 'v'}, {main: 'b', alt: '/', dataKey: 'b'}, {main: 'n', alt: '\\', dataKey: 'n'}, {main: 'm', alt: '|', dataKey: 'm'}, {main: ',', alt: '<', dataKey: ','}, {main: '.', alt: '>', dataKey: '.'}, {main: '?', alt: '~', dataKey: '?', class: 'question'}, {main: 'Shift', dataKey: 'Shift', class: 'wide'}],
+            [{main: 'Shift', dataKey: 'Shift', class: 'wide'}, {main: 'z', alt: '[', dataKey: 'z'}, {main: 'x', alt: ']', dataKey: 'x'}, {main: 'c', alt: '{', dataKey: 'c'}, {main: 'v', alt: '}', dataKey: 'v'}, {main: 'b', alt: '/', dataKey: 'b'}, {main: 'n', alt: '\\', dataKey: 'n'}, {main: 'm', alt: '|', dataKey: 'm'}, {main: ',', alt: '<', dataKey: '<'}, {main: '.', alt: '>', dataKey: '>'}, {main: '?', alt: '~', dataKey: '?', class: 'question'}, {main: 'Shift', dataKey: 'Shift', class: 'wide'}],
             [{main: 'Ctrl', dataKey: 'Control', class: 'ctrl-wide'}, {main: 'Fn', dataKey: 'Fn', class: 'ctrl-wide'}, {main: 'Alt', dataKey: 'Alt', class: 'ctrl-wide'}, {main: 'Space', dataKey: ' ', class: 'space'}, {main: 'Alt', dataKey: 'AltGraph', class: 'ctrl-wide'}, {main: 'Ctrl', dataKey: 'Control', class: 'ctrl-wide'}]
         ];
 
@@ -385,164 +694,455 @@
         const loadingText = document.getElementById('loadingText');
         const staticOverlay = document.getElementById('staticOverlay');
         const asciiLogoContainer = document.getElementById('asciiLogoContainer');
+        const livePreviewPanel = document.getElementById('livePreviewPanel');
+        const previewSvgContainer = document.getElementById('previewSvgContainer');
         const keyMap = {};
 
         let currentTypedCode = '';
         let isShiftActive = false;
         let isFnActive = false;
 
-        // --- Variabel dan Fungsi Baru untuk Simulasi Otomatis ---
         let autoTypingInterval;
         let autoTypingQueue = [];
         let isAutoTyping = false;
         let isAutoTypingPaused = false;
         let autoResumeTimeout;
         let userInputBuffer = [];
-        const typingSpeed = 60; // Milliseconds per character
+        const typingSpeed = 60;
         const PAUSE_DURATION = 3000;
         const BACKSPACE_SPEED = 50;
-        const INITIAL_DELAY = 2000; // 2 seconds delay before first typing
-        const RESTART_DELAY = 3000; // 3 seconds delay before re-looping simulation
+        const INITIAL_DELAY = 2000;
+        const RESTART_DELAY = 3000;
+        const PREVIEW_ANIMATION_DURATION = 700;
 
         // ASCII Logo Parabola
         const asciiLogo = `
-                                           
-                                           
-                                           
-                                           
-         @@@@@@@@@@@@@@@@@@@@@@@@@         
-      @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@      
-     @@@@                         @@@@     
-     @@@                           @@@     
-     @@@    @@@@                   @@@     
-     @@@     @@@@@                 @@@     
-     @@@        @@@@               @@@     
-     @@@      @@@@@                @@@     
-     @@@    @@@@@                  @@@     
-     @@@    @@@                    @@@     
-     @@@          @@@@@@@@@@@@@    @@@     
-     @@@                           @@@     
-     @@@@                         @@@@     
-      @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@      
-         @@@@@@@@@@@@@@@@@@@@@@@@@         
-                                           
-                                           
-                                           
-                                         
-`; // A simple parabola-like logo
+  /\\
+ /  \\
+|====|
+| [] |
+ \\  /
+  \\/
+`;
 
-        // Kode Simulasi otomatis yang baru
-        const codeLines = `try {
-  disconnect();
-  survive("bukan menikmati");
-  simplify("ya biasa aja");
-  buryEmotion("rutinitas");
-} catch (e) {
-  throw new EmosiNotHandledException();
-}`;
+        const codeLines = [
+            `// Initiating core processes...`,
+            `mind.process.logic(); // Memproses data dengan logika`,
+            `logic.evaluate("truth"); // Mengevaluasi kebenaran`,
+            `try {`,
+            `  disconnect(); // Keterhubungan diputus`,
+            `  survive("bukan menikmati"); // Bertahan`,
+            `  simplify("ya biasa aja"); // Menyederhanakan semua`,
+            `  buryEmotion("rutinitas"); // Mengubur emosi dalam rutinitas`,
+            `} catch (e) {`,
+            `  throw new EmosiNotHandledException();`,
+            `}`
+        ];
 
-        const fixingCodeLines = `
-// Attempting to fix EmosiNotHandledException...
-system.diagnose.emotionalState();
-  if (state.isCorrupted) {
-    system.repair.mindSchema();
-  } else {
-    system.log.error("Fix failed. Mind already too far gone.");
-  }`;
+        const fixingCodeLines = [
+            `// Attempting to fix EmosiNotHandledException...`,
+            `system.diagnose.emotionalState(); // Mendiagnosis kondisi emosional`,
+            `  if (state.isCorrupted) {`,
+            `    system.repair.mindSchema(); // Memperbaiki skema pikiran`,
+            `    system.initiateHealing(); // Memulai proses penyembuhan`,
+            `  } else {`,
+            `    system.log.error("Fix failed. Mind already too far gone.");`,
+            `  }`
+        ];
 
-        const rebootCommandLines = `command: reboot -f
-system shutdown initiated.
-Preparing for restart...`;
+        const rebootCommandLines = [
+            `command: reboot -f`,
+            `system shutdown initiated.`,
+            `Preparing for restart...`
+        ];
 
-        // Fungsi untuk memulai simulasi pengetikan otomatis
-        function startAutoTyping(textToType, callbackAfterFinish = null, disableUserInput = false) {
+        // --- Diagram Control Functions ---
+        const diagramElements = {
+            'node-self': { type: 'node', id: 'node-self', textId: 'text-self' },
+            'node-emotions': { type: 'node', id: 'node-emotions', textId: 'text-emotions' },
+            'node-system': { type: 'node', id: 'node-system', textId: 'text-system' },
+            'node-mind-schema': { type: 'node', id: 'node-mind-schema', textId: 'text-mind-schema' },
+            'node-logic': { type: 'node', id: 'node-logic', textId: 'text-logic' },
+            'node-lost-control': { type: 'node', id: 'node-lost-control', textId: 'text-lost-control' },
+            'node-healing': { type: 'node', id: 'node-healing', textId: 'text-healing' },
+
+            'line-process-logic': { type: 'line', id: 'line-process-logic', textId: 'text-process-logic', arrowId: 'arrow-process-logic' },
+            'line-evaluate-truth': { type: 'line', id: 'line-evaluate-truth', textId: 'text-evaluate-truth', arrowId: 'arrow-evaluate-truth' },
+            'line-disconnect': { type: 'line', id: 'line-disconnect', textId: 'text-disconnect', arrowId: 'arrow-disconnect' },
+            'line-bury-emotion': { type: 'line', id: 'line-bury-emotion', textId: 'text-bury-emotion', arrowId: 'arrow-bury-emotion' },
+            'line-error-overload': { type: 'line', id: 'line-error-overload', textId: 'text-error-overload', arrowId: 'arrow-error-overload' },
+            'line-error-to-lost': { type: 'line', id: 'line-error-to-lost', textId: 'text-error-to-lost', arrowId: 'arrow-error-to-lost' },
+            'line-diagnose': { type: 'line', id: 'line-diagnose', textId: 'text-diagnose', arrowId: 'arrow-diagnose' },
+            'line-repair': { type: 'line', id: 'line-repair', textId: 'text-repair', arrowId: 'arrow-repair' },
+            'line-repair-to-healing': { type: 'line', id: 'line-repair-to-healing', textId: 'text-repair-to-healing', arrowId: 'arrow-repair-to-healing' },
+            'line-healing-to-self': { type: 'line', id: 'line-healing-to-self', textId: 'text-healing-to-self', arrowId: 'arrow-healing-to-self' },
+            'line-reboot': { type: 'line', id: 'line-reboot', textId: 'text-reboot', arrowId: 'arrow-reboot' }
+        };
+
+        function getDiagramElement(id) {
+            return {
+                el: document.getElementById(id),
+                textEl: diagramElements[id]?.textId ? document.getElementById(diagramElements[id].textId) : null,
+                arrowEl: diagramElements[id]?.arrowId ? document.getElementById(diagramElements[id].arrowId) : null,
+                data: diagramElements[id]
+            };
+        }
+
+        function showDiagramElement(id, highlight = false, animateLine = false) {
+            const { el, textEl, arrowEl, data } = getDiagramElement(id);
+            if (el) {
+                el.classList.add('active');
+                if (highlight) el.classList.add('highlight');
+                if (textEl) {
+                    textEl.classList.add('active');
+                    if (highlight) textEl.classList.add('highlight');
+                }
+                if (arrowEl) {
+                    arrowEl.classList.add('active');
+                    if (highlight) {
+                        arrowEl.style.setProperty('--arrow-color', window.getComputedStyle(el).stroke);
+                        arrowEl.classList.add('highlight');
+                    }
+                }
+
+                if (data.type === 'line' && animateLine) {
+                    el.classList.remove('drawing');
+                    void el.offsetWidth; // Trigger reflow
+                    el.classList.add('drawing');
+                    if (highlight) {
+                        el.style.setProperty('--line-color', window.getComputedStyle(el).stroke);
+                        el.classList.add('glow');
+                    }
+                }
+            }
+        }
+
+        function hideDiagramElement(id) {
+            const { el, textEl, arrowEl } = getDiagramElement(id);
+            if (el) {
+                el.classList.remove('active', 'highlight', 'drawing', 'broken', 'flicker', 'glow');
+                el.style.removeProperty('--line-color');
+                el.style.removeProperty('--arrow-color');
+                // Reset specific fills/strokes that might have been changed for error states
+                if (id === 'node-emotions') el.style.fill = 'var(--node-emotions-fill)';
+                if (id === 'node-mind-schema') el.style.fill = 'var(--node-mind-schema-fill)';
+            }
+            if (textEl) textEl.classList.remove('active', 'highlight');
+            if (arrowEl) {
+                arrowEl.classList.remove('active', 'highlight');
+                arrowEl.style.removeProperty('--arrow-color');
+            }
+        }
+
+        function resetDiagram() {
+            for (const key in diagramElements) {
+                hideDiagramElement(key);
+            }
+        }
+
+
+        // --- Live Preview Logic (using Diagram) ---
+        function updateLivePreviewDiagram(codeLine) {
+            // Always show self and its text
+            showDiagramElement('node-self', true);
+
+            if (codeLine.includes('mind.process.logic();')) {
+                resetDiagram();
+                showDiagramElement('node-self', true);
+                showDiagramElement('node-mind-schema');
+                showDiagramElement('node-logic');
+                showDiagramElement('line-process-logic', true, true);
+                setTimeout(() => {
+                    showDiagramElement('node-mind-schema', true);
+                    showDiagramElement('node-logic', true);
+                }, PREVIEW_ANIMATION_DURATION);
+            } else if (codeLine.includes('logic.evaluate("truth");')) {
+                resetDiagram();
+                showDiagramElement('node-self', true);
+                showDiagramElement('node-logic');
+                showDiagramElement('node-mind-schema');
+                showDiagramElement('line-evaluate-truth', true, true);
+                setTimeout(() => {
+                    showDiagramElement('node-logic', true);
+                    showDiagramElement('node-mind-schema', true);
+                }, PREVIEW_ANIMATION_DURATION);
+            } else if (codeLine.includes('disconnect();')) {
+                // Self disconnects from emotions
+                hideDiagramElement('line-bury-emotion');
+                hideDiagramElement('line-error-overload');
+                hideDiagramElement('line-diagnose');
+                hideDiagramElement('line-repair');
+                hideDiagramElement('line-reboot');
+                hideDiagramElement('line-process-logic');
+                hideDiagramElement('line-evaluate-truth');
+                hideDiagramElement('line-error-to-lost');
+                hideDiagramElement('node-lost-control');
+                hideDiagramElement('node-healing');
+                hideDiagramElement('line-repair-to-healing');
+                hideDiagramElement('line-healing-to-self');
+                showDiagramElement('node-emotions');
+                showDiagramElement('line-disconnect', true, true);
+                setTimeout(() => {
+                    showDiagramElement('node-self', true); // Re-highlight
+                    showDiagramElement('node-emotions', true); // Re-highlight
+                }, PREVIEW_ANIMATION_DURATION);
+
+            } else if (codeLine.includes('buryEmotion("rutinitas");')) {
+                // Self tries to bury emotions (still connected to emotions, but a different action)
+                hideDiagramElement('line-disconnect');
+                hideDiagramElement('line-error-overload');
+                hideDiagramElement('line-diagnose');
+                hideDiagramElement('line-repair');
+                hideDiagramElement('line-reboot');
+                hideDiagramElement('line-process-logic');
+                hideDiagramElement('line-evaluate-truth');
+                hideDiagramElement('line-error-to-lost');
+                hideDiagramElement('node-lost-control');
+                hideDiagramElement('node-healing');
+                hideDiagramElement('line-repair-to-healing');
+                hideDiagramElement('line-healing-to-self');
+
+                showDiagramElement('node-emotions');
+                showDiagramElement('line-bury-emotion', true, true);
+                setTimeout(() => {
+                    showDiagramElement('node-self', true);
+                    showDiagramElement('node-emotions', true);
+                    // Visual effect for buried emotions: make emotions node darker/dimmer
+                    document.getElementById('node-emotions').style.fill = 'rgba(50, 50, 50, 0.5)';
+                }, PREVIEW_ANIMATION_DURATION);
+
+            } else if (codeLine.includes('throw new EmosiNotHandledException();')) {
+                // Error occurs, affecting emotions and system, leading to LOST CONTROL
+                resetDiagram(); // Clear previous states for a clear error visualization
+                showDiagramElement('node-self');
+                showDiagramElement('node-emotions');
+                document.getElementById('node-emotions').style.fill = '#FF4500'; // Error state color
+                document.getElementById('node-emotions').classList.add('highlight');
+                showDiagramElement('node-system');
+                showDiagramElement('line-error-overload', true, true);
+                showDiagramElement('node-lost-control');
+                showDiagramElement('line-error-to-lost', true, true);
+
+                const errorLine = getDiagramElement('line-error-overload').el;
+                const errorArrow = getDiagramElement('line-error-overload').arrowEl;
+                const errorText = getDiagramElement('line-error-overload').textEl;
+                
+                const lostLine = getDiagramElement('line-error-to-lost').el;
+                const lostArrow = getDiagramElement('line-error-to-lost').arrowEl;
+                const lostText = getDiagramElement('line-error-to-lost').textEl;
+
+                setTimeout(() => {
+                    errorLine.classList.add('broken', 'flicker');
+                    if (errorArrow) errorArrow.classList.add('flicker');
+                    if (errorText) errorText.classList.add('flicker');
+                    
+                    lostLine.classList.add('broken', 'flicker');
+                    if (lostArrow) lostArrow.classList.add('flicker');
+                    if (lostText) lostText.classList.add('flicker');
+                }, PREVIEW_ANIMATION_DURATION * 0.8);
+
+                setTimeout(() => {
+                    showDiagramElement('node-self', true);
+                    showDiagramElement('node-emotions', true);
+                    showDiagramElement('node-system', true);
+                    showDiagramElement('node-lost-control', true); // Highlight lost control
+                }, PREVIEW_ANIMATION_DURATION);
+
+            } else if (codeLine.includes('system.diagnose.emotionalState();')) {
+                // System diagnoses emotions
+                resetDiagram(); // Start fresh for fix sequence
+                showDiagramElement('node-self');
+                showDiagramElement('node-emotions');
+                document.getElementById('node-emotions').style.fill = 'var(--node-emotions-fill)'; // Restore emotions color
+                showDiagramElement('node-system');
+                showDiagramElement('line-diagnose', true, true);
+                setTimeout(() => {
+                    showDiagramElement('node-emotions', true);
+                    showDiagramElement('node-system', true);
+                }, PREVIEW_ANIMATION_DURATION);
+
+            } else if (codeLine.includes('system.repair.mindSchema();')) {
+                // System repairs mind schema (via mind schema node)
+                resetDiagram(); // Clear previous states for a new action
+                showDiagramElement('node-self');
+                showDiagramElement('node-emotions'); // Keep emotions active for context
+                showDiagramElement('node-system');
+                showDiagramElement('node-mind-schema');
+                showDiagramElement('line-repair', true, true);
+                setTimeout(() => {
+                    showDiagramElement('node-system', true);
+                    showDiagramElement('node-mind-schema', true);
+                }, PREVIEW_ANIMATION_DURATION);
+            } else if (codeLine.includes('system.initiateHealing();')) {
+                // Initiate healing process
+                resetDiagram();
+                showDiagramElement('node-self');
+                showDiagramElement('node-mind-schema');
+                showDiagramElement('node-healing');
+                showDiagramElement('line-repair-to-healing', true, true);
+                setTimeout(() => {
+                    showDiagramElement('node-mind-schema', true);
+                    showDiagramElement('node-healing', true);
+                }, PREVIEW_ANIMATION_DURATION);
+            } else if (codeLine.includes('system.log.error("Fix failed. Mind already too far gone.");')) {
+                // Repair failed, mind schema is broken
+                resetDiagram(); // Reset to show the failed state clearly
+                showDiagramElement('node-self');
+                showDiagramElement('node-emotions');
+                document.getElementById('node-emotions').style.fill = '#FF4500'; // Revert to error color
+                document.getElementById('node-emotions').classList.add('highlight');
+
+                showDiagramElement('node-system');
+                showDiagramElement('node-mind-schema');
+                document.getElementById('node-mind-schema').classList.add('highlight');
+                document.getElementById('node-mind-schema').style.stroke = '#FF4500'; // Red stroke for error
+                document.getElementById('node-mind-schema').style.fill = 'rgba(255, 0, 0, 0.2)'; // Faded error fill
+
+                // Show lost control again briefly
+                showDiagramElement('node-lost-control', true);
+                showDiagramElement('line-error-to-lost', true, true);
+                const lostLine = getDiagramElement('line-error-to-lost').el;
+                const lostArrow = getDiagramElement('line-error-to-lost').arrowEl;
+                const lostText = getDiagramElement('line-error-to-lost').textEl;
+                lostLine.classList.add('broken', 'flicker');
+                if (lostArrow) lostArrow.classList.add('flicker');
+                if (lostText) lostText.classList.add('flicker');
+
+            } else if (codeLine.includes('command: reboot -f')) {
+                // Initiate reboot sequence, focus on Self and System
+                resetDiagram(); // Clear all for reboot visualization
+                showDiagramElement('node-self');
+                showDiagramElement('node-system');
+                showDiagramElement('line-reboot', true, true);
+                setTimeout(() => {
+                    showDiagramElement('node-self', true);
+                    showDiagramElement('node-system', true);
+                }, PREVIEW_ANIMATION_DURATION);
+            }
+            // For lines like survive() or simplify(), diagram state might not change drastically
+            // The initial SELF node is already active, so no specific update needed.
+        }
+
+        // --- Core Terminal & Keyboard Functions ---
+        function updateScreenContentInternal() {
+            const existingBlinkingCursor = screenContent.querySelector('.blinking');
+            if (existingBlinkingCursor) {
+                existingBlinkingCursor.remove();
+            }
+
+            screenContent.innerHTML = `<pre><code class="language-javascript">${escapeHtml(currentTypedCode)}</code></pre>`;
+            hljs.highlightElement(screenContent.querySelector('code'));
+
+            const codeElement = screenContent.querySelector('code');
+            const span = document.createElement('span');
+            span.classList.add('blinking');
+            span.textContent = '|';
+            codeElement.appendChild(span);
+
+            screenContent.scrollTop = screenContent.scrollHeight;
+        }
+
+        function startAutoTyping(textLines, callbackAfterFinish = null, disableUserInput = false) {
             if (isAutoTyping) {
-                clearInterval(autoTypingInterval); // Hentikan yang sebelumnya jika masih berjalan
+                clearInterval(autoTypingInterval);
             }
             isAutoTyping = true;
-            isAutoTypingPaused = false; // Pastikan tidak dalam status jeda
-            autoTypingQueue = textToType.split(''); // Ubah string menjadi array karakter
-            userInputBuffer = []; // Reset buffer input manual saat memulai auto typing baru
+            isAutoTypingPaused = false;
+            autoTypingQueue = [];
+            textLines.forEach(line => {
+                autoTypingQueue.push(...line.split(''), '\n');
+            });
+            userInputBuffer = [];
 
             if (disableUserInput) {
                 document.removeEventListener('keydown', handlePhysicalKeyboard);
-                // Also remove click listeners on keyboard keys if needed
-                // For this example, we'll just disable physical keyboard
             } else {
                  document.addEventListener('keydown', handlePhysicalKeyboard);
             }
 
+            let currentLineTyped = '';
+            let lineIndex = 0;
+
             autoTypingInterval = setInterval(() => {
                 if (isAutoTypingPaused) {
-                    return; // Jangan ketik jika dijeda
+                    return;
                 }
 
                 if (autoTypingQueue.length > 0) {
                     const char = autoTypingQueue.shift();
 
-                    let dataKeyForChar = char;
-                    let needsShift = false;
-                    let needsFn = false;
-
-                    let foundKeyData = null;
-                    for(const row of keyboardLayout) {
-                        for(const k of row) {
-                            if (k.main === char.toLowerCase()) {
-                                foundKeyData = k;
-                                if (char.toUpperCase() === char && char.toLowerCase() !== char) {
-                                    needsShift = true;
-                                    dataKeyForChar = k.dataKey;
-                                } else {
-                                    dataKeyForChar = k.dataKey;
-                                }
-                                break;
-                            }
-                            if (k.alt === char) {
-                                foundKeyData = k;
-                                needsFn = true;
-                                dataKeyForChar = k.dataKey;
-                                break;
-                            }
-                        }
-                        if (foundKeyData) break;
-                    }
-
-                    if (char === ' ') {
-                        dataKeyForChar = ' ';
-                    } else if (char === '\n') {
-                        dataKeyForChar = 'Enter';
+                    if (char === '\n') {
+                        handleInput('Enter', 'auto', '\n');
+                        // Update diagram after each relevant line is typed
+                        updateLivePreviewDiagram(currentLineTyped.trim());
+                        currentLineTyped = '';
+                        lineIndex++;
+                        return;
+                    } else if (char === ' ') {
+                        handleInput(' ', 'auto', ' ');
+                        currentLineTyped += ' ';
                     } else if (char === '\t') {
-                        dataKeyForChar = 'Tab';
+                        handleInput('Tab', 'auto', '\t');
+                        currentLineTyped += '    ';
+                    } else {
+                        let dataKeyForChar = char;
+                        let needsShift = false;
+                        let needsFn = false;
+
+                        let foundKeyData = null;
+                        for(const row of keyboardLayout) {
+                            for(const k of row) {
+                                if (k.main === char.toLowerCase()) {
+                                    foundKeyData = k;
+                                    if (char.toUpperCase() === char && char.toLowerCase() !== char) {
+                                        needsShift = true;
+                                        dataKeyForChar = k.dataKey;
+                                    } else {
+                                        dataKeyForChar = k.dataKey;
+                                    }
+                                    break;
+                                }
+                                if (k.alt === char) {
+                                    foundKeyData = k;
+                                    needsFn = true;
+                                    dataKeyForChar = k.dataKey;
+                                    break;
+                                }
+                            }
+                            if (foundKeyData) break;
+                        }
+
+                        if (needsShift) {
+                            isShiftActive = true;
+                            pressKeyVisual('Shift', true);
+                        }
+                        if (needsFn) {
+                            isFnActive = true;
+                            pressKeyVisual('Fn', true);
+                        }
+
+                        handleInput(dataKeyForChar, 'auto', char);
+                        currentLineTyped += char;
+
+                        if (needsShift) {
+                            setTimeout(() => {
+                                isShiftActive = false;
+                                pressKeyVisual('Shift', false);
+                            }, typingSpeed / 2);
+                        }
+                        if (needsFn) {
+                            setTimeout(() => {
+                                isFnActive = false;
+                                pressKeyVisual('Fn', false);
+                            }, typingSpeed / 2);
+                        }
+
+                        pressKeyVisual(dataKeyForChar, true);
+                        if (dataKeyForChar !== 'Shift' && dataKeyForChar !== 'Fn' && dataKeyForChar !== 'Control' && dataKeyForChar !== 'Alt') {
+                            setTimeout(() => pressKeyVisual(dataKeyForChar, false), typingSpeed * 0.8);
+                        }
                     }
 
-                    if (needsShift) {
-                        isShiftActive = true;
-                        pressKeyVisual('Shift', true);
-                    }
-                    if (needsFn) {
-                        isFnActive = true;
-                        pressKeyVisual('Fn', true);
-                    }
-
-                    handleInput(dataKeyForChar, 'auto', char);
-
-                    if (needsShift) {
-                        setTimeout(() => {
-                            isShiftActive = false;
-                            pressKeyVisual('Shift', false);
-                        }, typingSpeed / 2);
-                    }
-                    if (needsFn) {
-                        setTimeout(() => {
-                            isFnActive = false;
-                            pressKeyVisual('Fn', false);
-                        }, typingSpeed / 2);
-                    }
-
-                    pressKeyVisual(dataKeyForChar, true);
-                    if (dataKeyForChar !== 'Shift' && dataKeyForChar !== 'Fn' && dataKeyForChar !== 'Control' && dataKeyForChar !== 'Alt') {
-                        setTimeout(() => pressKeyVisual(dataKeyForChar, false), typingSpeed * 0.8);
-                    }
                 } else {
                     clearInterval(autoTypingInterval);
                     isAutoTyping = false;
@@ -554,7 +1154,6 @@ Preparing for restart...`;
             }, typingSpeed);
         }
 
-        // Fungsi untuk menjeda simulasi pengetikan otomatis
         function pauseAutoTyping() {
             if (!isAutoTypingPaused) {
                 isAutoTypingPaused = true;
@@ -563,7 +1162,6 @@ Preparing for restart...`;
             }
         }
 
-        // Fungsi untuk melanjutkan simulasi pengetikan otomatis
         function resumeAutoTyping() {
             if (isAutoTyping && isAutoTypingPaused) {
                 backspaceUserInput(() => {
@@ -573,7 +1171,6 @@ Preparing for restart...`;
             }
         }
 
-        // Fungsi untuk melakukan backspace pada input pengguna
         function backspaceUserInput(callback) {
             let backspaceCount = userInputBuffer.length;
             let currentBackspaceIndex = 0;
@@ -595,33 +1192,6 @@ Preparing for restart...`;
                 }
             }, BACKSPACE_SPEED);
         }
-
-        function updateScreenContentInternal() {
-            const existingBlinkingCursor = screenContent.querySelector('.blinking');
-            if (existingBlinkingCursor) {
-                existingBlinkingCursor.remove();
-            }
-
-            screenContent.innerHTML = `<pre><code class="language-javascript">${escapeHtml(currentTypedCode)}</code></pre>`;
-            hljs.highlightElement(screenContent.querySelector('code'));
-
-            const codeElement = screenContent.querySelector('code');
-            const span = document.createElement('span');
-            span.classList.add('blinking');
-            span.textContent = '|';
-            codeElement.appendChild(span);
-
-            screenContent.scrollTop = screenContent.scrollHeight;
-        }
-
-        function triggerAutoResume() {
-            clearTimeout(autoResumeTimeout);
-            autoResumeTimeout = setTimeout(() => {
-                resumeAutoTyping();
-            }, PAUSE_DURATION);
-        }
-
-        // --- Fungsi yang Sudah Ada ---
 
         function updateScreenContent(char) {
             if (char === 'BACKSPACE_CHAR') {
@@ -705,14 +1275,12 @@ Preparing for restart...`;
         });
 
         function handleInput(dataKey, source, charFromAuto = null) {
-            // Jeda pengetikan otomatis dan atur timer resume jika input manual
             if (isAutoTyping && (source === 'physical' || source === 'click')) {
                 pauseAutoTyping();
-                triggerAutoResume(); // Atur ulang timer untuk melanjutkan
+                triggerAutoResume();
             }
 
             let charToType = '';
-
             const targetKeyData = keyMap[dataKey] ? keyMap[dataKey][0].data : null;
 
             if (dataKey === 'Enter') {
@@ -721,13 +1289,12 @@ Preparing for restart...`;
                 charToType = ' ';
             } else if (dataKey === 'Backspace') {
                 if (source !== 'auto' && userInputBuffer.length > 0) {
-                    // Hanya backspace dari buffer input manual
                     userInputBuffer.pop();
                     charToType = 'BACKSPACE_CHAR';
                 } else if (source === 'auto') {
-                    charToType = 'BACKSPACE_CHAR'; // Biarkan auto typing backspace jika memang ada di antrian
+                    charToType = 'BACKSPACE_CHAR';
                 } else {
-                    return; // Abaikan backspace jika tidak ada di buffer atau bukan dari auto-typing
+                    return;
                 }
             } else if (dataKey === 'Tab') {
                 charToType = '    ';
@@ -740,12 +1307,11 @@ Preparing for restart...`;
                 }
                 return;
             } else if (dataKey === 'Fn') {
-                if (source !== 'auto') {
-                    isFnActive = !isFnActive;
-                    pressKeyVisual('Fn', isFnActive);
-                } else if (charFromAuto) {
-                    charToType = charFromAuto;
+                 if (!isFnActive) {
+                    isFnActive = true;
+                    pressKeyVisual('Fn', true);
                 }
+                event.preventDefault(); // Prevent default if Fn key has native browser behavior
                 return;
             } else if (dataKey === 'Control' || dataKey === 'Alt') {
                 return;
@@ -792,12 +1358,10 @@ Preparing for restart...`;
             return shiftMap[char] || char.toUpperCase();
         }
 
-        // --- Event Listeners untuk Keyboard Fisik ---
         function handlePhysicalKeyboard(event) {
             const key = event.key;
             const code = event.code;
 
-            // Jeda pengetikan otomatis dan atur timer resume
             if (isAutoTyping) {
                 pauseAutoTyping();
                 triggerAutoResume();
@@ -827,15 +1391,24 @@ Preparing for restart...`;
                 return;
             }
 
-            pressKeyVisual(key, true);
-
+            // Map physical key codes to data-key for visual feedback
             let dataKeyToUse = key;
+            // Specific mappings for keys not directly matching 'key'
             if (key === ' ') dataKeyToUse = ' ';
             if (key === 'Backspace') dataKeyToUse = 'Backspace';
             if (key === 'Tab') dataKeyToUse = 'Tab';
             if (key === 'Enter') dataKeyToUse = 'Enter';
+            // For special characters like ; = etc., their 'key' value matches their main-char,
+            // but for alt chars like !, @, etc., we need to check the shift state
+            
+            // Only press visual if it's a key we have mapped
+            const keyDataExists = keyMap[dataKeyToUse] || (event.shiftKey && keyMap[key.toLowerCase()]) || (isFnActive && keyMap[key]);
 
-            handleInput(dataKeyToUse, 'physical', event.shiftKey ? getShiftedChar(key) : key);
+            if (keyDataExists) {
+                 pressKeyVisual(dataKeyToUse, true);
+                 handleInput(dataKeyToUse, 'physical', event.shiftKey ? getShiftedChar(key) : key);
+            }
+           
             event.preventDefault();
         }
 
@@ -857,13 +1430,10 @@ Preparing for restart...`;
             } else {
                 pressKeyVisual(key, false);
             }
-            // Setelah keyup, jika ada input manual (bukan modifier), atur ulang timeout resume
             if (isAutoTyping && (key !== 'Shift' && key !== 'Control' && key !== 'Alt' && key !== 'Fn')) {
                 triggerAutoResume();
             }
         });
-
-        // --- Fungsi Simulasi Alur Baru ---
 
         function showEmosiNotHandledException() {
             const errorMessage = `
@@ -874,13 +1444,12 @@ Preparing for restart...`;
           <span style="color: #9B9B9B;">Attempting emergency fix...</span>
         </div>
       `;
-            // Add a new line before showing error
-            currentTypedCode += '\n'; // Add newline to ensure error appears on a new line
-            updateScreenContentInternal(); // Render with new line
+            currentTypedCode += '\n';
+            updateScreenContentInternal();
             const blink = screenContent.querySelector('.blinking');
             if (blink) blink.remove();
-            screenContent.innerHTML += errorMessage; // Append error message
-            screen.style.color = 'red'; // Screen color changes to red
+            screenContent.innerHTML += errorMessage;
+            screen.style.color = 'red';
             screenContent.scrollTop = screenContent.scrollHeight;
             appendToLog("ERROR: EmosiNotHandledException caught. Initiating fix sequence.");
         }
@@ -894,14 +1463,13 @@ Preparing for restart...`;
           <span style="color: #9B9B9B;"><br>Forced reboot required.</span>
         </div>
       `;
-            // Add a new line before showing error
-            currentTypedCode += '\n'; // Add newline to ensure error appears on a new line
-            updateScreenContentInternal(); // Render with new line
+            currentTypedCode += '\n';
+            updateScreenContentInternal();
             const blink = screenContent.querySelector('.blinking');
             if (blink) blink.remove();
-            screenContent.innerHTML += errorMessage; // Append error message
+            screenContent.innerHTML += errorMessage;
             screen.style.color = 'red';
-            screenContent.scrollTop = screenContent.scrollHeight;
+            screenContent.scrollTop = screenContent.scrollTop; // Maintain scroll or scroll to bottom if needed
             appendToLog("CRITICAL ERROR: Your mind is broken. Forced reboot.");
         }
 
@@ -930,8 +1498,8 @@ Preparing for restart...`;
         }
 
         function startLoadingBarAnimation() {
-            screenContent.style.display = 'none'; // Hide content when loading bar appears
-            loadingBarContainer.style.display = 'flex'; // Show loading bar
+            screenContent.style.display = 'none';
+            loadingBarContainer.style.display = 'flex';
             let loadingProgress = 0;
             loadingBar.style.width = '0%';
             loadingText.textContent = "INITIATING REBOOT...";
@@ -946,26 +1514,23 @@ Preparing for restart...`;
                 if (loadingProgress >= 100) {
                     clearInterval(loadingInterval);
                     appendToLog("Reboot sequence complete.");
-                    // Reset screen and start fresh for next sequence or initial state
                     loadingBarContainer.style.display = 'none';
-                    screenContent.style.display = 'flex'; // Show screen content again
-                    currentTypedCode = ''; // Clear for next sequence
-                    updateScreenContentInternal(); // Reset cursor
-                    screen.style.color = '#0F0'; // Back to green
+                    screenContent.style.display = 'flex';
+                    currentTypedCode = '';
+                    updateScreenContentInternal();
+                    screen.style.color = '#0F0';
                     stopGlitchEffect();
                     stopStaticEffect();
                     appendToLog("System rebooted. Ready for new input.");
-                    document.addEventListener('keydown', handlePhysicalKeyboard); // Re-enable keyboard
-
-                    // *** START LOOP HERE ***
-                    setTimeout(runSimulationSequence, RESTART_DELAY); // Panggil ulang untuk looping
+                    document.addEventListener('keydown', handlePhysicalKeyboard);
+                    resetDiagram(); // Ensure diagram is reset after reboot
+                    setTimeout(runSimulationSequence, RESTART_DELAY);
                 }
             }, 100);
         }
 
-        // Fungsi untuk menampilkan dan menyembunyikan logo ASCII
         function showAsciiLogo() {
-            screenContent.style.display = 'none'; // Sembunyikan konten terminal
+            screenContent.style.display = 'none';
             asciiLogoContainer.innerHTML = `<pre>${asciiLogo}</pre>`;
             asciiLogoContainer.classList.add('show');
             appendToLog("Displaying ASCII logo...");
@@ -974,31 +1539,36 @@ Preparing for restart...`;
         function hideAsciiLogo(callback) {
             asciiLogoContainer.classList.remove('show');
             asciiLogoContainer.classList.add('hide');
-            // Beri sedikit waktu untuk transisi opacity sebelum menghapus
             setTimeout(() => {
                 asciiLogoContainer.innerHTML = '';
                 asciiLogoContainer.classList.remove('hide');
-                screenContent.style.display = 'flex'; // Tampilkan kembali konten terminal
+                screenContent.style.display = 'flex';
                 if (callback) callback();
-            }, 1000); // Sesuaikan durasi transisi CSS
+            }, 1000);
         }
 
-        // --- Alur Simulasi Utama ---
+        function triggerAutoResume() {
+            clearTimeout(autoResumeTimeout);
+            autoResumeTimeout = setTimeout(() => {
+                resumeAutoTyping();
+            }, PAUSE_DURATION);
+        }
+
         function runSimulationSequence() {
-            currentTypedCode = ''; // Bersihkan layar
-            updateScreenContentInternal(); // Tampilkan kursor kosong
-            screen.style.color = '#0F0'; // Pastikan warna hijau awal
+            currentTypedCode = '';
+            updateScreenContentInternal();
+            screen.style.color = '#0F0';
             startGlitchEffect();
             startStaticEffect();
-            appendToLog("System initiated. Waiting to start code...");
-            systemLog.scrollTop = systemLog.scrollHeight; // Scroll log ke bawah
+            appendToLog("System initiated. Waiting to start code simulation...");
+            systemLog.scrollTop = systemLog.scrollHeight;
+            resetDiagram(); // Always reset diagram at the start of a new sequence
 
-            // Tampilkan logo parabola dulu
             showAsciiLogo();
 
             setTimeout(() => {
                 hideAsciiLogo(() => {
-                    appendToLog("Starting code...");
+                    appendToLog("Starting code simulation...");
                     startAutoTyping(codeLines, () => {
                         showEmosiNotHandledException();
                         setTimeout(() => {
@@ -1015,14 +1585,14 @@ Preparing for restart...`;
                                         startAutoTyping(rebootCommandLines, () => {
                                             appendToLog("Reboot commands sent. System preparing for restart...");
                                             setTimeout(startLoadingBarAnimation, 1000);
-                                        }, true);
+                                        }, true); // Disable user input during reboot commands
                                     }, 1500);
                                 }, 3000);
                             });
                         }, 3000);
                     });
                 });
-            }, INITIAL_DELAY); // Delay sebelum logo menghilang dan pengetikan dimulai
+            }, INITIAL_DELAY);
         }
 
         document.addEventListener('DOMContentLoaded', () => {
